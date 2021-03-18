@@ -1,0 +1,1064 @@
+<style>
+	body {
+		background-color: #333;
+	}
+
+	.itemHeader {
+		color: #fff;
+		background-color: #555;
+		padding: 0.5em;
+	}
+
+	.itemContents {
+		background-color: #ccc;
+		padding: 0.5em;
+		margin-bottom: 2px;
+		display: none;
+	}
+
+	fieldset {
+		padding: 0.5em 0.5em 0.5em 0;
+		margin: 0.6em;
+	}
+
+	p {
+		margin: 0.1em 0.6em;
+	}
+
+	legend {
+		font-family: sans-serif;
+		font-size: 9pt;
+		margin-left: 1em;
+	}
+
+	.radio {
+		margin-left: 1em;
+	}
+
+	.checkbox {
+		margin-left: 1em;
+	}
+
+	select {
+		margin-left: 1em;
+	}
+
+	textarea {
+		margin-left: 1em;
+		width: 95%;
+	}
+
+	.singleTextInput {
+		margin-left: 1em;
+	}
+
+	.titleText {
+		font-size: 3em;
+		color: #fff;
+		vertical-align: middle;
+	}
+
+	.bodytext {
+		color: #fff;
+		padding-bottom: 1em;
+		padding-left: 0.4em;
+	}
+
+	#mainContent {
+		display: flex;
+		align-items: flex-start;
+	}
+
+	#modelOutput {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		width: 60%;
+		margin-right: 1em;
+	}
+
+	#commentOutput {
+		display: flex;
+		flex-direction: column;
+		width: 38%;
+		background-color: #ddd;
+	}
+
+	.cc {
+		border-radius: 4px;
+		background-color: #fff;
+		margin-top: 1em;
+	}
+
+	#outcomments,
+	#outsubject {
+		font-family: courier;
+		font-size: 10pt;
+		padding: 0 0.4em;
+	}
+</style>
+
+
+
+
+<table class="introTable" border="0">
+	<tr>
+		<td rowspan="2">
+		</td>
+		<td class="titleText">High Touch Widget</td>
+	</tr>
+	<tr>
+		<td class=bodytext>
+			<!--TOBE REPLACED......-->
+		</td>
+	</tr>
+</table>
+
+<div id="mainContent">
+	<div id="modelOutput"></div>
+	<div id="commentOutput">
+		<div id="calconnect_output">
+			<div class="itemHeader">Paste this into the call log</div>
+			<fieldset class="cc">
+				<legend>Subject</legend>
+				<div id="outSubject" contenteditable="true" tabindex="-97"></div>
+			</fieldset>
+			<fieldset class="cc">
+				<legend>Comments</legend>
+				<div id="outComments" contenteditable="true" tabindex="-98"></div>
+			</fieldset>
+		</div>
+	</div>
+</div>
+<div>
+	<input type="button" onclick="resetForm()" value="Reset">
+</div>
+
+<script>
+	function resetForm() {
+		modelOutput.innerHTML = "";
+		buildModel();
+		window[model[0].id].style.display = 'block';
+		window.yourName.style.display = 'block';
+		window.yourTitle.style.display = 'block';
+		outSubject.innerHTML = '';
+		outComments.innerHTML = '';
+	}
+	// builds radio elements, called when buildModel() process a path with objectType radio
+	function radioEl(label, name, id, val, action, disabled) {
+		return (`<input type="radio" name="${name}" value="${val}" class="radio" onChange="${action}"> ${label}${globals.radioButtonsVertical ? `<br>` : ``}`);
+	}
+
+	// Builds select form elements, called when buildModel() process a path with objectType select.
+	//   «sOptions» is an array of objects in the format
+	//   «{label: 'dropdownMenuItemText, value: valuePassedToActionUponSelect'}». If a third property is listed
+	//   «disable: true» the menu item is not selectable. This is useful for grouping items in a dropdown by
+	//   separating them with a disabled/blank line, or a disabled header that describes the grouping.
+	function selectEl(id, action, disabled, sOptions) {
+		var so = `<select onChange="${action}">`;
+		for (option in sOptions) {
+			// console.log(sOptions[option].disabled)
+			so += `<option ${sOptions[option].disabled ? `disabled` : ``} value="${sOptions[option].value}">${sOptions[option].label}</option>`;
+		}
+		so += '</select>';
+		return (so);
+	}
+
+	// builds textInput fields, called when buildModel() process a path with objectType textInput
+	function textInputEl(label, id, val, action, disabled) {
+		return (`<input class="singleTextInput" value="${val}" onChange="${action}" ${disabled ? `disabled` : ``}> ${label}${globals.radioButtonsVertical ? `<br>` : ``}`);
+	}
+
+	// builds textarea fields, called when buildModel() process a path with objectType textarea
+	function textareaEl(id, action, rows) {
+		return (`<textarea name="${id}" onChange="${action}"></textarea>`);
+	}
+
+	// builds datePicker fields, called when buildModel() process a path with objectType datePickerEl
+	function datePickerEl(id, action, disabled) {
+		return (`<input id="${id}" type="date" onChange="${action}" ${sOptions[option].disabled ? `disabled` : ``}>`);
+	}
+
+	// builds checkbox elements, called when buildModel() process a path with objectType checkbox
+	function checkboxEl(label, name, id, val, action, disabled) {
+		return (`<input type="checkbox" name="${name}" value="${val}" class="checkbox" onChange="${action}"> ${label}${globals.radioButtonsVertical ? `<br>` : ``}`);
+	}
+
+
+
+
+
+	function backtrackCheck(thisBranchId, objectType) {
+		console.log("In backtrackCheck...");
+		// console.log("globals.branchesRevealed: " + JSON.stringify(globals.branchesRevealed));
+		// console.log("globals.branchesRevealed: thisBranchId.indexOf(thisBranchId)" + globals.branchesRevealed.indexOf(thisBranchId));
+		// console.log(`Index of ${thisBranchId} ${globals.branchesRevealed.indexOf(thisBranchId)}, branchesRevealed.length ${globals.branchesRevealed.length} `);
+
+		// console.log("globals.outputData:  " + JSON.stringify(globals.outputData));
+
+		// hide all of the branches listed in this array after the index of this ID and trigger the functions that clear their data.
+		if (objectType && objectType == 'checkbox') {
+			// checkbox selection may be changed after displaying elements after the checbox element.
+		} else {
+			if (globals.branchesRevealed.indexOf(thisBranchId) >= 0) {
+				// show  question 12. Does the Case have any high-risk household contacts? (Only if Q2 – Case is selected) - id: 'caseHighRiskHouseholdContacts',
+				// question 2 name: 'interviewCaseOrContact',
+				let interviewCaseOrContactRadios = document.getElementsByName('interviewCaseOrContact');
+				// console.log("interviewCaseOrContactRadios: "+ interviewCaseOrContactRadios);
+
+				let blnInterviewCase = false;
+				for (let i = 0; i < interviewCaseOrContactRadios.length; i++) {
+					if (interviewCaseOrContactRadios[i].checked) {
+						// checked radio
+						// console.log(interviewCaseOrContactRadios[i].value);
+						if (interviewCaseOrContactRadios[i].value == "Case") {
+							blnInterviewCase = true;
+						}
+						break;
+					}
+				}
+
+				let indexOfThisBranchId = globals.branchesRevealed.indexOf(thisBranchId);
+				for (let i = indexOfThisBranchId + 1; i < globals.branchesRevealed.length; i++) {
+					// console.log("window[globals.branchesRevealed["+ i +"]]: "+ window[globals.branchesRevealed[i]]);
+					if (blnInterviewCase && window[globals.branchesRevealed[i]].id == "caseHighRiskHouseholdContacts") {
+
+					} else {
+						// hide the question
+						window[globals.branchesRevealed[i]].style.display = 'none';
+
+						// TODO clear the question previous selections
+
+						// delete the question ouptput data
+						delete globals.outputData[globals.branchesRevealed[i]];
+					}					
+				}
+			}
+		}
+
+		// console.log("globals.branchesRevealed: After hide : " + JSON.stringify(globals.branchesRevealed));
+		// console.log("globals.outputData:  Atter hide and delete: " + JSON.stringify(globals.outputData));
+
+	}
+
+	// takes the value «theData» of a form element in a branch «thisBranchId», tags it to be delivered
+	//   to either the "subject" field or the "comments" field «dataDestination», and stores it in
+	//   «globals.outputData.«thisBranchId»»
+	function saveData(thisBranchId, theData, dataDestination, objectType) {
+		console.log("In saveData...");
+		// console.log("thisBranchId: " + thisBranchId);
+		// console.log('globals.outputData[thisBranchId]: ' + JSON.stringify(globals.outputData[thisBranchId]));
+		// console.log('theData: ' + theData);
+
+		/*
+		globals.outputData[thisBranchId] = {
+			[dataDestination]: theData
+		} */
+
+
+		// console.log('objectType: ' + objectType);
+
+		if (objectType && objectType == 'checkbox') {
+			// console.log("Its checkbox");
+			// console.log("dataDestination: " + dataDestination);
+			// console.log("globals.outputData[thisBranchId]: " + JSON.stringify(globals.outputData[thisBranchId]));
+
+			// check box data already selected
+			if (globals.outputData[thisBranchId]) {
+				/*globals.outputData[thisBranchId] = {
+					[dataDestination]: theData
+				}*/
+				// console.log("globals.outputData[thisBranchId].dataDestination: " + globals.outputData[thisBranchId][dataDestination]);
+				// globals.outputData[thisBranchId][dataDestination] = globals.outputData[thisBranchId][dataDestination] + ", " + theData;
+				const checkboxes = document.querySelectorAll(`input[name="${thisBranchId}"]:checked`);
+				// let dataDestinationStr = thisBranchId +" : ";
+				let dataDestinationStr = theData.substring(0, theData.indexOf(":") + 2);
+				// let values = [];
+				checkboxes.forEach((checkbox) => {
+					// console.log("checbox: " + checkbox.value);
+
+					// values.push(checkbox.value);
+					dataDestinationStr = dataDestinationStr + checkbox.value + ", ";
+				});
+				// console.log("checkboxes values: "+ JSON.stringify(values));
+
+				globals.outputData[thisBranchId][dataDestination] = dataDestinationStr.substring(0, dataDestinationStr.length - 2);
+			} else {
+				globals.outputData[thisBranchId] = {
+					[dataDestination]: theData
+				}
+			}
+
+		} else {
+			globals.outputData[thisBranchId] = {
+				[dataDestination]: theData
+			}
+		}
+
+	}
+
+	// reveals a hidden branch of the decision tree, called 
+	function revealBranch(newBranchId) {
+		console.log("In revealBranch...")
+		// console.log(`newBranchId: ${newBranchId}`);
+
+		if (newBranchId) {
+			/*
+			window[newBranchId].style.display = 'block';
+			globals.branchesRevealed.push(newBranchId);
+			*/
+			if (globals.branchesRevealed.indexOf(newBranchId) >= 0) {
+				let indexOfNewBranchId = globals.branchesRevealed.indexOf(newBranchId);
+				window[globals.branchesRevealed[indexOfNewBranchId]].style.display = 'block';
+			} else {
+				window[newBranchId].style.display = 'block';
+				globals.branchesRevealed.push(newBranchId);
+			}
+
+		}
+	}
+
+	// refresh the subject and comments fields with all the current data in «globals.outputData»
+	function updateOutput() {
+		outSubject.innerHTML = '';
+		outComments.innerHTML = '';
+		for (response in globals.outputData) {
+			if (globals.outputData[response].comments) {
+				// outComments.innerHTML += `#${globals.outputData[response].comments}|<br>`;
+				outComments.innerHTML += `${globals.outputData[response].comments}|<br>`;
+			} else if (globals.outputData[response].subject) {
+				// outSubject.innerHTML = `#${globals.outputData[response].subject}|`;
+				outSubject.innerHTML = `${globals.outputData[response].subject}|`;
+			}
+		}
+	}
+
+
+	// receives data from a form action and distributes that data to the appropriate functions 
+	function handleAction(thisBranchId, newBranchId, theData, dataDestination, objectType) {
+		console.log("In handleAction");
+		// console.log(thisBranchId, newBranchId, theData, dataDestination);
+
+		try {
+			// first check to see if we need to remove anything due to backtracking
+			backtrackCheck(thisBranchId, objectType);
+			// then save the data for output
+			saveData(thisBranchId, theData, dataDestination, objectType);
+
+			// then display the new branch and add it to branchesRevealed for future backtracking protection
+			var newBranchIds = newBranchId.split(',');
+			// console.log("newBranchIds: " + newBranchIds);
+			// console.log("newBranchIds.length: " + newBranchIds.length);
+			if (newBranchIds.length > 1) {
+				newBranchIds.forEach(branchId => {
+					if (branchId) {
+						// show  question 12. Does the Case have any high-risk household contacts? (Only if Q2 – Case is selected) - id: 'caseHighRiskHouseholdContacts',
+						// question 2 name: 'interviewCaseOrContact',
+						let interviewCaseOrContactRadios = document.getElementsByName('interviewCaseOrContact');
+						// console.log("interviewCaseOrContactRadios: "+ interviewCaseOrContactRadios);
+
+						let blnInterviewCase = false;
+						for (let i = 0; i < interviewCaseOrContactRadios.length; i++) {
+							if (interviewCaseOrContactRadios[i].checked) {
+								// checked radio
+								// console.log(interviewCaseOrContactRadios[i].value);
+								if (interviewCaseOrContactRadios[i].value == "Case") {
+									blnInterviewCase = true;
+								}
+								break;
+							}
+						}		
+
+						if (!blnInterviewCase && branchId.trim() == "caseHighRiskHouseholdContacts") {
+							
+						} else {
+							revealBranch(branchId.trim());
+						}						
+					}
+				});
+			} else {
+				revealBranch(newBranchId);
+			}
+
+			// refresh the subject and comments fields with all the current data in «globals.outputData»
+			updateOutput();
+		} catch (error) {
+			console.error("Error in handleAction(...)")
+			console.error(error);
+			// expected output: ReferenceError: nonExistentFunction is not defined
+			// Note - error messages will vary depending on browser
+		}
+	}
+
+
+
+	// global variables that can be set inside one function and used in multiple other places
+	var globals = {
+
+		// Tells the script to add a <br> after each radio button to display them vertically when true.
+		//   Currently set to true when a fieldset contains more than 2 radio buttons.
+		radioButtonsVertical: false,
+
+		// Every time a form action reveals a new branch of the decision tree, the ID of that branch gets
+		//   pushed into this array, allowing the widget to keep track of them and the order in which
+		//   they were revealed. When the user clicks on a form element, a function is run that checks to
+		//   see if the associated ID already exists in the «branchesRevealed» array. If it does, that means
+		//   the user is "backtracking" and we need to hide all of the branches listed in this array after
+		//   the index of this ID and trigger the functions that clear their data. We can do that by looping
+		//   through this array starting at the index of that ID + 1
+		branchesRevealed: [],
+
+		// «outputData» is an object that stores the output of each branch by ID. That way the subject
+		//   and comments fields can be updated each time a form action is chosen, and if a user backtracks
+		//   the data from branches that are no longer valid can be automatically removed, eliminating the
+		//   chance of unintended data indavertently remaining.
+		outputData: {},
+	}
+
+	// This is where you define the "outline" of the decision tree in JSON format.
+	//   You can define a header (or leave it as an empty string «''» if you don't want one), the text contents
+	//   of this block, the question that you want answered (which will draw a box around the form element), and
+	//   the paths forward presented by the form element.
+	//   
+	//   All of the branches of the tree will be created when the page is loaded, but only the first one will
+	//   be displayed -- the rest are hidden via stylesheets «display = 'none'». Choosing an option in a form
+	//   element determines which new branch to reveal by changing its style to «display = 'block'». It also
+	//   stores the new branch ID in the «globals.branchesRevealed» array so the widget can keep track of
+	//   what it branches it needs to hide and what data it needs to delete if someone backtracks, stores
+	//   the data generated in that branch, and updates the text of the subject and comments boxes.
+	var model = [
+		/*
+		1. What type of interview did you complete? 
+		Initial Interview 
+		Monitoring and Support 
+		*/
+		{
+			header: 'Call Script',
+			id: 'interviewTypeCompleted',
+			objectType: 'script',
+			contents: ``,
+			question: `What type of interview did you complete?`,
+			paths: [
+				{
+					header: 'Initial Interview',
+					objectType: 'radio',
+					name: 'interviewTypeCompleted',
+					id: 'interviewTypeCompleted',
+					val: 'Initial Interview',
+					action: `handleAction('interviewTypeCompleted', 'interviewCaseOrContact', 'Interview Type : Initial Interview', 'comments')`,
+					disabled: '',
+					contents: `You selected Monitoring and Support`,
+				},
+				{
+					header: 'Monitoring and Support',
+					objectType: 'radio',
+					name: 'interviewTypeCompleted',
+					id: 'interviewTypeCompleted',
+					val: 'Monitoring and Support',
+					action: `handleAction('interviewTypeCompleted', 'interviewCaseOrContact', 'Interview Type : Monitoring and Support', 'comments')`,
+					disabled: '',
+					contents: `You selected Monitoring and Support`,
+				}
+			]
+		},
+		/*
+		2. Did you complete an interview for a case or contact? 
+		Case 
+		Contact 
+		*/
+		{
+			header: '',
+			id: 'interviewCaseOrContact',
+			objectType: 'script',
+			contents: ``,
+			question: `Did you complete an interview for a case or contact?`,
+			paths: [
+				{
+					header: 'Case',
+					objectType: 'radio',
+					name: 'interviewCaseOrContact',
+					id: 'interviewCaseOrContact',
+					val: 'Case',
+					// action: `handleAction('interviewCaseOrContact', 'socialHealthDeterminantsYesOrNo, caseHighRiskHouseholdContacts', 'hightouchFollowUp_interviewCaseOrContact : Case', 'comments')`,
+					action: `handleAction('interviewCaseOrContact', 'socialHealthDeterminantsYesOrNo', 'Type of Record : Case', 'comments')`,
+					disabled: '',
+					contents: `You selected Case'`,
+				},
+				{
+					header: 'Contact',
+					objectType: 'radio',
+					name: 'interviewCaseOrContact',
+					id: 'interviewCaseOrContact',
+					val: 'Contact',
+					action: `handleAction('interviewCaseOrContact', 'socialHealthDeterminantsYesOrNo', 'Type of Record : Contact', 'comments')`,
+					disabled: '',
+					contents: `You selected Contact'`,
+				}
+			]
+		},
+		/*
+		3. Were any social determinants of health needs identified during the interview? 
+		Yes 
+		No 
+		*/
+		{
+			header: '',
+			id: 'socialHealthDeterminantsYesOrNo',
+			objectType: 'script',
+			contents: ``,
+			question: `Were any social determinants of health needs identified during the interview?`,
+			paths: [
+				{
+					header: 'Yes',
+					objectType: 'radio',
+					name: 'socialHealthDeterminantsYesOrNo',
+					id: 'socialHealthDeterminantsYesOrNo',
+					val: 'Yes',
+					action: `handleAction('socialHealthDeterminantsYesOrNo', 'socialHealthDeterminantsIdentified', 'Social Determinants : Yes', 'comments')`,
+					disabled: '',
+					contents: `You selected Yes'`,
+				},
+				{
+					header: 'No',
+					objectType: 'radio',
+					name: 'socialHealthDeterminantsYesOrNo',
+					id: 'socialHealthDeterminantsYesOrNo',
+					val: 'No',
+					action: `handleAction('socialHealthDeterminantsYesOrNo', 'clientConsentSendingReferrals', 'Social Determinants : No', 'comments')`,
+					disabled: '',
+					contents: `You selected No'`,
+				}
+			]
+		},
+		/*
+		4. (if question 3 – yes is selected). Please identify the social determinants of health needs  
+		Food 
+		Housing 
+		Financial  
+		Utilities 
+		Household 
+		Children 
+		Transportation 
+		Literacy 
+		Technology 
+		Medical
+		*/
+		{
+			header: '',
+			id: 'socialHealthDeterminantsIdentified',
+			objectType: 'script',
+			contents: ``,
+			question: `Please identify the social determinants of health needs`,
+			paths: [
+				{
+					header: 'Food',
+					objectType: 'checkbox',
+					name: 'socialHealthDeterminantsIdentified',
+					id: 'socialHealthDeterminantsIdentified',
+					val: 'Food',
+					action: `handleAction('socialHealthDeterminantsIdentified', 'socialHealthDeterminantsUrgentNeeds', 'Social Determinant Needs : Food', 'comments', 'checkbox')`,
+					disabled: '',
+					contents: `You selected Food'`,
+				},
+				{
+					header: 'Housing',
+					objectType: 'checkbox',
+					name: 'socialHealthDeterminantsIdentified',
+					id: 'socialHealthDeterminantsIdentified',
+					val: 'Housing',
+					action: `handleAction('socialHealthDeterminantsIdentified', 'socialHealthDeterminantsUrgentNeeds', 'Social Determinant Needs : Housing', 'comments', 'checkbox')`,
+					disabled: '',
+					contents: `You selected Housing'`,
+				},
+				{
+					header: 'Financial',
+					objectType: 'checkbox',
+					name: 'socialHealthDeterminantsIdentified',
+					id: 'socialHealthDeterminantsIdentified',
+					val: 'Financial',
+					action: `handleAction('socialHealthDeterminantsIdentified', 'socialHealthDeterminantsUrgentNeeds', 'Social Determinant Needs : Financial', 'comments', 'checkbox')`,
+					disabled: '',
+					contents: `You selected Financial'`,
+				},
+				{
+					header: 'Utilities',
+					objectType: 'checkbox',
+					name: 'socialHealthDeterminantsIdentified',
+					id: 'socialHealthDeterminantsIdentified',
+					val: 'Utilities',
+					action: `handleAction('socialHealthDeterminantsIdentified', 'socialHealthDeterminantsUrgentNeeds', 'Social Determinant Needs : Utilities', 'comments', 'checkbox')`,
+					disabled: '',
+					contents: `You selected Utilities'`,
+				},
+				{
+					header: 'Household',
+					objectType: 'checkbox',
+					name: 'socialHealthDeterminantsIdentified',
+					id: 'socialHealthDeterminantsIdentified',
+					val: 'Household',
+					action: `handleAction('socialHealthDeterminantsIdentified', 'socialHealthDeterminantsUrgentNeeds', 'Social Determinant Needs : Household', 'comments', 'checkbox')`,
+					disabled: '',
+					contents: `You selected Household'`,
+				},
+				{
+					header: 'Children',
+					objectType: 'checkbox',
+					name: 'socialHealthDeterminantsIdentified',
+					id: 'socialHealthDeterminantsIdentified',
+					val: 'Children',
+					action: `handleAction('socialHealthDeterminantsIdentified', 'socialHealthDeterminantsUrgentNeeds', 'Social Determinant Needs : Children', 'comments', 'checkbox')`,
+					disabled: '',
+					contents: `You selected Children'`,
+				},
+				{
+					header: 'Transportation',
+					objectType: 'checkbox',
+					name: 'socialHealthDeterminantsIdentified',
+					id: 'socialHealthDeterminantsIdentified',
+					val: 'Transportation',
+					action: `handleAction('socialHealthDeterminantsIdentified', 'socialHealthDeterminantsUrgentNeeds', 'Social Determinant Needs : Transportation', 'comments', 'checkbox')`,
+					disabled: '',
+					contents: `You selected Transportation'`,
+				},
+				{
+					header: 'Literacy',
+					objectType: 'checkbox',
+					name: 'socialHealthDeterminantsIdentified',
+					id: 'socialHealthDeterminantsIdentified',
+					val: 'Literacy',
+					action: `handleAction('socialHealthDeterminantsIdentified', 'socialHealthDeterminantsUrgentNeeds', 'Social Determinant Needs : Literacy', 'comments', 'checkbox')`,
+					disabled: '',
+					contents: `You selected Literacy'`,
+				},
+				{
+					header: 'Technology',
+					objectType: 'checkbox',
+					name: 'socialHealthDeterminantsIdentified',
+					id: 'socialHealthDeterminantsIdentified',
+					val: 'Technology',
+					action: `handleAction('socialHealthDeterminantsIdentified', 'socialHealthDeterminantsUrgentNeeds', 'Social Determinant Needs : Technology', 'comments', 'checkbox')`,
+					disabled: '',
+					contents: `You selected Technology'`,
+				},
+				{
+					header: 'Medical',
+					objectType: 'checkbox',
+					name: 'socialHealthDeterminantsIdentified',
+					id: 'socialHealthDeterminantsIdentified',
+					val: 'Medical',
+					action: `handleAction('socialHealthDeterminantsIdentified', 'socialHealthDeterminantsUrgentNeeds', 'Social Determinant Needs : Medical', 'comments', 'checkbox')`,
+					disabled: '',
+					contents: `You selected Medical'`,
+				}
+
+			]
+		},
+		/*
+		5. Are any of these needs urgent? 
+		Yes 
+		No 
+		*/
+		{
+			header: '',
+			id: 'socialHealthDeterminantsUrgentNeeds',
+			objectType: 'script',
+			contents: ``,
+			question: `Are any of these needs urgent?`,
+			paths: [
+				{
+					header: 'Yes',
+					objectType: 'radio',
+					name: 'socialHealthDeterminantsUrgentNeeds',
+					id: 'socialHealthDeterminantsUrgentNeeds',
+					val: 'Yes',
+					action: `handleAction('socialHealthDeterminantsUrgentNeeds', 'clientConsentSendingReferrals', 'Urgent Needs : Yes', 'comments')`,
+					disabled: '',
+					contents: `You selected Yes'`,
+				},
+				{
+					header: 'No',
+					objectType: 'radio',
+					name: 'socialHealthDeterminantsUrgentNeeds',
+					id: 'socialHealthDeterminantsYesOrNo',
+					val: 'No',
+					action: `handleAction('socialHealthDeterminantsUrgentNeeds', 'clientConsentSendingReferrals', 'Urgent Needs : No', 'comments')`,
+					disabled: '',
+					contents: `You selected No'`,
+				}
+			]
+		},
+		/*
+		6. Did the client consent to you sending referrals on their behalf? (radio button) 
+		Yes 
+		No 
+		*/
+		{
+			header: '',
+			id: 'clientConsentSendingReferrals',
+			objectType: 'script',
+			contents: ``,
+			question: `Did the client consent to you sending referrals on their behalf?`,
+			paths: [
+				{
+					header: 'Yes',
+					objectType: 'radio',
+					name: 'clientConsentSendingReferrals',
+					id: 'clientConsentSendingReferrals',
+					val: 'Yes',
+					action: `handleAction('clientConsentSendingReferrals', 'referralsMade', 'Client Consent : Yes', 'comments')`,
+					disabled: '',
+					contents: `You selected Yes'`,
+				},
+				{
+					header: 'No',
+					objectType: 'radio',
+					name: 'clientConsentSendingReferrals',
+					id: 'clientConsentSendingReferrals',
+					val: 'No',
+					action: `handleAction('clientConsentSendingReferrals', 'referralsMade', 'Client Consent : No', 'comments')`,
+					disabled: '',
+					contents: `You selected No'`,
+				}
+			]
+		},
+
+		/*
+		7. Select what referrals were made		 
+		I/Q Support  
+		Patient Health Access 
+		Clinician  
+		Self (resource referral made by CET)
+		*/
+		{
+			header: '',
+			id: 'referralsMade',
+			objectType: 'script',
+			contents: ``,
+			question: `Select what referrals were made`,
+			paths: [				
+				{
+					header: 'I/Q Support',
+					objectType: 'checkbox',
+					name: 'referralsMade',
+					id: 'referralsMade',
+					val: 'I/Q Support',
+					action: `handleAction('referralsMade', 'assitanceClientNeeded', 'Referrals Made : I/Q Support', 'comments', 'checkbox')`,
+					disabled: '',
+					contents: `You selected I/Q Support'`,
+				},
+				{
+					header: 'Patient Health Access',
+					objectType: 'checkbox',
+					name: 'referralsMade',
+					id: 'referralsMade',
+					val: 'Patient Health Access',
+					action: `handleAction('referralsMade', 'assitanceClientNeeded', 'Referrals Made : Patient Health Access', 'comments', 'checkbox')`,
+					disabled: '',
+					contents: `You selected Patient Health Access'`,
+				},
+				{
+					header: 'Clinician',
+					objectType: 'checkbox',
+					name: 'referralsMade',
+					id: 'referralsMade',
+					val: 'Clinician',
+					action: `handleAction('referralsMade', 'assitanceClientNeeded', 'Referrals Made : Clinician', 'comments', 'checkbox')`,
+					disabled: '',
+					contents: `You selected Clinician'`,
+				},
+				{
+					header: 'Self (resource referral made by CET)',
+					objectType: 'checkbox',
+					name: 'referralsMade',
+					id: 'referralsMade',
+					val: 'Self (resource referral made by CET)',
+					action: `handleAction('referralsMade', 'assitanceClientNeeded', 'Referrals Made : Self (resource referral made by CET)', 'comments', 'checkbox')`,
+					disabled: '',
+					contents: `You selected Self (resource referral made by CET)'`,
+				},
+			]
+		},
+		/*
+		8. Please identify the level of assistance needed by the client. 
+		0 
+		1 
+		2 
+		3 
+		*/
+		{
+			header: '',
+			id: 'assitanceClientNeeded',
+			objectType: 'script',
+			contents: `On a scale from 1 to 3, with 3 is the highest...`,
+			question: `Please identify the level of assistance needed by the client.`,
+			paths: [
+				{
+					objectType: 'select',
+					id: 'assitanceClientNeeded',
+					action: `handleAction('assitanceClientNeeded', 'levelOfCaseAssistance', 'Level of Assistance Needed : '+ this.value, 'comments')`,
+					disabled: '',
+					options: [
+						{ label: '', value: '' },
+						{ label: '0', value: 0 },
+						{ label: '1', value: 1 },
+						{ label: '2', value: 2 },
+						{ label: '3', value: 3 }
+					]
+				}
+			]
+		},
+		/*
+		9. Please identify the level of care needed by the client 
+		None 
+		Low 
+		Medium 
+		high 
+		*/
+		{
+			header: '',
+			id: 'levelOfCaseAssistance',
+			objectType: 'script',
+			contents: ``,
+			question: `Please identify the level of care needed by the client.`,
+			paths: [
+				{
+					objectType: 'select',
+					id: 'levelOfCaseAssistance',
+					action: `handleAction('levelOfCaseAssistance', 'clientConsentMonitoringSupport', 'Level of Care Needed : '+ this.value, 'comments')`,
+					disabled: '',
+					options: [
+						{ label: '', value: '' },
+						{ label: 'None', value: 'None' },
+						{ label: 'Low', value: 'Low' },
+						{ label: 'Medium', value: 'Medium' },
+						{ label: 'High', value: 'High' }
+					]
+				}
+			]
+		},
+		/*
+		10. Did the client consent to monitoring and support? (radio button) 
+		Yes 
+		No 
+		*/
+		{
+			header: '',
+			id: 'clientConsentMonitoringSupport',
+			objectType: 'script',
+			contents: ``,
+			question: `Did the client consent to monitoring and support?`,
+			paths: [
+				{
+					header: 'Yes',
+					objectType: 'radio',
+					name: 'clientConsentMonitoringSupport',
+					id: 'clientConsentMonitoringSupport',
+					val: 'Yes',
+					action: `handleAction('clientConsentMonitoringSupport', 'clientFollowupDate, caseHighRiskHouseholdContacts, additionalSpecialConsiderations', 'M & S Consent : Yes', 'comments')`,
+					disabled: '',
+					contents: `You selected Yes'`,
+				},
+				{
+					header: 'No',
+					objectType: 'radio',
+					name: 'clientConsentMonitoringSupport',
+					id: 'clientConsentMonitoringSupport',
+					val: 'No',
+					action: `handleAction('clientConsentMonitoringSupport', 'clientFollowupDate, caseHighRiskHouseholdContacts, additionalSpecialConsiderations', 'M & S Consent : No', 'comments')`,
+					disabled: '',
+					contents: `You selected No'`,
+				}
+			]
+		},
+
+		/*
+		11.  date do you plan on following up with the client? 
+		Text Field to enter date
+		*/
+		{
+			header: '',
+			id: 'clientFollowupDate',
+			objectType: 'script',
+			contents: `Enter in the format mm/dd/yyyy`,
+			question: `Date do you plan on following up with the client?`,
+			paths: [
+				{
+					objectType: 'textInput',
+					label: '',
+					id: 'clientFollowupDate',
+					val: '',
+					action: `handleAction('clientFollowupDate', 'additionalSpecialConsiderations', 'M & S Follow-up Date : ' + this.value, 'comments')`,
+				},
+			]
+		},
+		/*
+		12. Does the Case have any high-risk household contacts? (Only if Q2 – Case is selected) 
+		Yes  
+		No
+		*/
+		{
+			header: '',
+			id: 'caseHighRiskHouseholdContacts',
+			objectType: 'script',
+			contents: ``,
+			question: `Does the Case have any high-risk household contacts?`,
+			paths: [
+				{
+					header: 'Yes',
+					objectType: 'radio',
+					name: 'caseHighRiskHouseholdContacts',
+					id: 'caseHighRiskHouseholdContacts',
+					val: 'Yes',
+					action: `handleAction('caseHighRiskHouseholdContacts', 'additionalSpecialConsiderations', 'High Risk Household Contacts : Yes', 'comments')`,
+					disabled: '',
+					contents: `You selected Yes'`,
+				},
+				{
+					header: 'No',
+					objectType: 'radio',
+					name: 'caseHighRiskHouseholdContacts',
+					id: 'socialHealthDeterminantsYesOrNo',
+					val: 'No',
+					action: `handleAction('caseHighRiskHouseholdContacts', 'additionalSpecialConsiderations', 'High Risk Household Contacts : No', 'comments')`,
+					disabled: '',
+					contents: `You selected No'`,
+				}
+			]
+		},
+		/*
+		13. Please provide any additional special considerations you may regarding this interview
+		*/
+		{
+			header: '',
+			id: 'additionalSpecialConsiderations',
+			objectType: 'script',
+			contents: ``,
+			question: `Please provide any additional special considerations you may regarding this interview`,
+			paths: [
+				{
+					objectType: 'textarea',
+					id: 'additionalSpecialConsiderations',
+					action: `handleAction('additionalSpecialConsiderations', '', 'Additional/Special Considerations : '+ this.value, 'comments')`,
+					disabled: '',
+					rows: 3
+				}
+			]
+		},
+
+		// Interviewer Info
+		{
+			header: 'Interviewer Info',
+			id: 'yourName',
+			objectType: 'script',
+			contents: ``,
+			question: `Your Name`,
+			paths: [
+				{
+					objectType: 'textInput',
+					label: '',
+					id: 'yourName',
+					val: '',
+					action: `handleAction('yourName', '', 'Your Name : ' + this.value, 'comments')`,
+				},
+			]
+		},
+		{
+			header: '',
+			id: 'yourTitle',
+			objectType: 'script',
+			contents: ``,
+			question: `Your Title`,
+			paths: [
+				{
+					objectType: 'select',
+					id: 'yourTitle',
+					action: `handleAction('yourTitle', '', 'Your Title : '+ this.value, 'comments')`,
+					disabled: '',
+					options: [
+						{ label: '', value: '' },
+						{ label: 'CICT', value: 'CICT' },
+						{ label: 'CET', value: 'CET' }
+					]
+				},
+			]
+		},
+	]
+
+	function buildModel() {
+		var o = '';
+		for (item in model) {
+			o += `
+			<div class="item">
+				${model[item].header == '' ? `` : `<div class="itemHeader">${model[item].header}</div>`}
+				<div class="itemContents" id="${model[item].id}"><p>${model[item].contents}</p>
+				${model[item].question == '' ? `` : `<fieldset><legend>${model[item].question}</legend>`}
+			`;
+			// if there are more than 2 paths, radio buttons should be displayed vertically
+			if (model[item].paths.length > 2) {
+				globals.radioButtonsVertical = true;
+			}
+
+			for (subitem in model[item].paths) {
+
+				if (model[item].paths[subitem].objectType == 'radio') {
+					console.log('radio fired');
+					o += `${radioEl(
+						model[item].paths[subitem].header,
+						model[item].paths[subitem].name,
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].val,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].disabled)}`;
+				} else if (model[item].paths[subitem].objectType == 'select') {
+					console.log('select fired');
+					o += `${selectEl(
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].disabled,
+						model[item].paths[subitem].options)}`;
+				} else if (model[item].paths[subitem].objectType == 'textInput') {
+					console.log('textInput fired');
+					o += `${textInputEl(
+						model[item].paths[subitem].label,
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].val,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].disabled)}`;
+				} else if (model[item].paths[subitem].objectType == 'textarea') {
+					console.log('textarea fired');
+					o += `${textareaEl(
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].rows)}`;
+				} else if (model[item].paths[subitem].objectType == 'datePicker') {
+					console.log('datePicker fired');
+					o += `${textareaEl(
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].rows)}`;
+				} else if (model[item].paths[subitem].objectType == 'checkbox') {
+					console.log('checkbox fired');
+					o += `${checkboxEl(
+						model[item].paths[subitem].header,
+						model[item].paths[subitem].name,
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].val,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].disabled)}`;
+				}
+			}
+
+			// once this group of paths is processed, change radio buttons back to horizontal
+			globals.radioButtonsVertical = false;
+			o += `${model[item].question == '' ? `` : `</fieldset>`}</div>`;
+
+		}
+		modelOutput.innerHTML = o;
+	}
+
+	buildModel();
+	window[model[0].id].style.display = 'block';
+	window.yourName.style.display = 'block';
+	window.yourTitle.style.display = 'block';
+
+</script>
