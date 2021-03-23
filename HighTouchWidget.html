@@ -163,7 +163,6 @@
 		function selectEl(id, action, disabled, sOptions) {
 			var so = `<select onChange="${action}">`;
 			for (option in sOptions) {
-				// console.log(sOptions[option].disabled)
 				so += `<option ${sOptions[option].disabled ? `disabled` : ``} value="${sOptions[option].value}">${sOptions[option].label}</option>`;
 			}
 			so += '</select>';
@@ -195,13 +194,6 @@
 
 
 		function backtrackCheck(thisBranchId, objectType) {
-			// console.log("In backtrackCheck...");
-			// console.log("globals.branchesRevealed: " + JSON.stringify(globals.branchesRevealed));
-			// console.log("globals.branchesRevealed: thisBranchId.indexOf(thisBranchId)" + globals.branchesRevealed.indexOf(thisBranchId));
-			// console.log(`Index of ${thisBranchId} ${globals.branchesRevealed.indexOf(thisBranchId)}, branchesRevealed.length ${globals.branchesRevealed.length} `);
-
-			// console.log("globals.outputData:  " + JSON.stringify(globals.outputData));
-
 			// hide all of the branches listed in this array after the index of this ID and trigger the functions that clear their data.
 			if (objectType && objectType == 'checkbox') {
 				// checkbox selection may be changed after displaying elements after the checbox element.
@@ -210,13 +202,11 @@
 					// show  question 12. Does the Case have any high-risk household contacts? (Only if Q2 – Case is selected) - id: 'caseHighRiskHouseholdContacts',
 					// question 2 name: 'interviewCaseOrContact',
 					let interviewCaseOrContactRadios = document.getElementsByName('interviewCaseOrContact');
-					// console.log("interviewCaseOrContactRadios: "+ interviewCaseOrContactRadios);
 
 					let blnInterviewCase = false;
 					for (let i = 0; i < interviewCaseOrContactRadios.length; i++) {
 						if (interviewCaseOrContactRadios[i].checked) {
 							// checked radio
-							// console.log(interviewCaseOrContactRadios[i].value);
 							if (interviewCaseOrContactRadios[i].value == "Case") {
 								blnInterviewCase = true;
 							}
@@ -226,19 +216,14 @@
 
 					let indexOfThisBranchId = globals.branchesRevealed.indexOf(thisBranchId);
 					for (let i = indexOfThisBranchId + 1; i < globals.branchesRevealed.length; i++) {
-						// console.log("window[globals.branchesRevealed["+ i +"]]: "+ window[globals.branchesRevealed[i]]);
 						if (blnInterviewCase && window[globals.branchesRevealed[i]].id == "caseHighRiskHouseholdContacts") {
 
 						} else {
-							// console.log("globals.branchesRevealed[i]: " + globals.branchesRevealed[i]);							
 
-							// TODO clear the question previous selections (reload model element in div???)
+							// clear the question previous selections (reload model element in div???)
 							for (item in model) {
-								// console.log("model[item].id in model: " + model[item].id);
 								if (model[item].id == globals.branchesRevealed[i]) {
-									// console.log("item found in model : JSON.stringify(item) - " + JSON.stringify(item));
 									let itemHtml = getModelItemHtml(item);
-									// console.log("itemHtml: " + itemHtml);
 
 									window[globals.branchesRevealed[i]].innerHTML = itemHtml;
 									break;
@@ -254,119 +239,31 @@
 					}
 				}
 			}
-
-			// console.log("globals.branchesRevealed: After hide : " + JSON.stringify(globals.branchesRevealed));
-			// console.log("globals.outputData:  Atter hide and delete: " + JSON.stringify(globals.outputData));
-
-		}
-
-		function getModelItemHtml(item) {
-			var o = '';
-			o += `
-				<p>${model[item].contents}</p>
-				${model[item].question == '' ? `` : `<fieldset><legend>${model[item].question}</legend>`}
-			`;
-			// if there are more than 2 paths, radio buttons should be displayed vertically
-			if (model[item].paths.length > 2) {
-				globals.radioButtonsVertical = true;
-			}
-
-			for (subitem in model[item].paths) {
-				if (model[item].paths[subitem].objectType == 'radio') {
-					console.log('getModelItemHtml: radio fired');
-					o += `${radioEl(
-						model[item].paths[subitem].header,
-						model[item].paths[subitem].name,
-						model[item].paths[subitem].id,
-						model[item].paths[subitem].val,
-						model[item].paths[subitem].action,
-						model[item].paths[subitem].disabled)}`;
-				} else if (model[item].paths[subitem].objectType == 'select') {
-					console.log('getModelItemHtml: select fired');
-					o += `${selectEl(
-						model[item].paths[subitem].id,
-						model[item].paths[subitem].action,
-						model[item].paths[subitem].disabled,
-						model[item].paths[subitem].options)}`;
-				} else if (model[item].paths[subitem].objectType == 'textInput') {
-					console.log('getModelItemHtml: textInput fired');
-					o += `${textInputEl(
-						model[item].paths[subitem].label,
-						model[item].paths[subitem].id,
-						model[item].paths[subitem].val,
-						model[item].paths[subitem].action,
-						model[item].paths[subitem].disabled)}`;
-				} else if (model[item].paths[subitem].objectType == 'textarea') {
-					console.log('getModelItemHtml: textarea fired');
-					o += `${textareaEl(
-						model[item].paths[subitem].id,
-						model[item].paths[subitem].action,
-						model[item].paths[subitem].rows)}`;
-				} else if (model[item].paths[subitem].objectType == 'datePicker') {
-					console.log('getModelItemHtml: datePicker fired');
-					o += `${textareaEl(
-						model[item].paths[subitem].id,
-						model[item].paths[subitem].action,
-						model[item].paths[subitem].rows)}`;
-				} else if (model[item].paths[subitem].objectType == 'checkbox') {
-					console.log('getModelItemHtml: checkbox fired');
-					o += `${checkboxEl(
-						model[item].paths[subitem].header,
-						model[item].paths[subitem].name,
-						model[item].paths[subitem].id,
-						model[item].paths[subitem].val,
-						model[item].paths[subitem].action,
-						model[item].paths[subitem].disabled)}`;
-				}
-			}
-
-			// once this group of paths is processed, change radio buttons back to horizontal
-			globals.radioButtonsVertical = false;
-			o += `${model[item].question == '' ? `` : `</fieldset>`}`;
-
-			return o;
 		}
 
 		// takes the value «theData» of a form element in a branch «thisBranchId», tags it to be delivered
 		//   to either the "subject" field or the "comments" field «dataDestination», and stores it in
 		//   «globals.outputData.«thisBranchId»»
 		function saveData(thisBranchId, theData, dataDestination, objectType) {
-			// console.log("In saveData...");
-			// console.log("thisBranchId: " + thisBranchId);
-			// console.log('globals.outputData[thisBranchId]: ' + JSON.stringify(globals.outputData[thisBranchId]));
-			// console.log('theData: ' + theData);
-
 			/*
 			globals.outputData[thisBranchId] = {
 				[dataDestination]: theData
 			} */
 
-
-			// console.log('objectType: ' + objectType);
-
 			if (objectType && objectType == 'checkbox') {
-				// console.log("Its checkbox");
-				// console.log("dataDestination: " + dataDestination);
-				// console.log("globals.outputData[thisBranchId]: " + JSON.stringify(globals.outputData[thisBranchId]));
 
 				// check box data already selected
 				if (globals.outputData[thisBranchId]) {
 					/*globals.outputData[thisBranchId] = {
 						[dataDestination]: theData
 					}*/
-					// console.log("globals.outputData[thisBranchId].dataDestination: " + globals.outputData[thisBranchId][dataDestination]);
 					// globals.outputData[thisBranchId][dataDestination] = globals.outputData[thisBranchId][dataDestination] + ", " + theData;
 					const checkboxes = document.querySelectorAll(`input[name="${thisBranchId}"]:checked`);
 					// let dataDestinationStr = thisBranchId +" : ";
 					let dataDestinationStr = theData.substring(0, theData.indexOf(":") + 2);
-					// let values = [];
 					checkboxes.forEach((checkbox) => {
-						// console.log("checbox: " + checkbox.value);
-
-						// values.push(checkbox.value);
 						dataDestinationStr = dataDestinationStr + checkbox.value + ", ";
 					});
-					// console.log("checkboxes values: "+ JSON.stringify(values));
 
 					globals.outputData[thisBranchId][dataDestination] = dataDestinationStr.substring(0, dataDestinationStr.length - 2);
 				} else {
@@ -385,9 +282,6 @@
 
 		// reveals a hidden branch of the decision tree, called 
 		function revealBranch(newBranchId) {
-			// console.log("In revealBranch...")
-			// console.log(`newBranchId: ${newBranchId}`);
-
 			if (newBranchId) {
 				/*
 				window[newBranchId].style.display = 'block';
@@ -422,9 +316,6 @@
 
 		// receives data from a form action and distributes that data to the appropriate functions 
 		function handleAction(thisBranchId, newBranchId, theData, dataDestination, objectType) {
-			// console.log("In handleAction");
-			// console.log(thisBranchId, newBranchId, theData, dataDestination);
-
 			try {
 				// first check to see if we need to remove anything due to backtracking
 				backtrackCheck(thisBranchId, objectType);
@@ -433,21 +324,17 @@
 
 				// then display the new branch and add it to branchesRevealed for future backtracking protection
 				var newBranchIds = newBranchId.split(',');
-				// console.log("newBranchIds: " + newBranchIds);
-				// console.log("newBranchIds.length: " + newBranchIds.length);
 				if (newBranchIds.length > 1) {
 					newBranchIds.forEach(branchId => {
 						if (branchId) {
 							// show  question 12. Does the Case have any high-risk household contacts? (Only if Q2 – Case is selected) - id: 'caseHighRiskHouseholdContacts',
 							// question 2 name: 'interviewCaseOrContact',
 							let interviewCaseOrContactRadios = document.getElementsByName('interviewCaseOrContact');
-							// console.log("interviewCaseOrContactRadios: "+ interviewCaseOrContactRadios);
 
 							let blnInterviewCase = false;
 							for (let i = 0; i < interviewCaseOrContactRadios.length; i++) {
 								if (interviewCaseOrContactRadios[i].checked) {
 									// checked radio
-									// console.log(interviewCaseOrContactRadios[i].value);
 									if (interviewCaseOrContactRadios[i].value == "Case") {
 										blnInterviewCase = true;
 									}
@@ -531,7 +418,7 @@
 						name: 'interviewTypeCompleted',
 						id: 'interviewTypeCompleted',
 						val: 'Initial Interview',
-						action: `handleAction('interviewTypeCompleted', 'interviewCaseOrContact', 'Interview Type : Initial Interview', 'comments')`,
+						action: `handleAction('interviewTypeCompleted', 'interviewCaseOrContact', 'Interview Type : Initial Interview', 'subject')`,
 						disabled: '',
 						contents: `You selected Monitoring and Support`,
 					},
@@ -541,7 +428,7 @@
 						name: 'interviewTypeCompleted',
 						id: 'interviewTypeCompleted',
 						val: 'Monitoring and Support',
-						action: `handleAction('interviewTypeCompleted', 'interviewCaseOrContact', 'Interview Type : Monitoring and Support', 'comments')`,
+						action: `handleAction('interviewTypeCompleted', 'interviewCaseOrContact', 'Interview Type : Monitoring and Support', 'subject')`,
 						disabled: '',
 						contents: `You selected Monitoring and Support`,
 					}
@@ -1076,7 +963,10 @@
 				o += `
 			<div class="item">
 				${model[item].header == '' ? `` : `<div class="itemHeader">${model[item].header}</div>`}
-				<div class="itemContents" id="${model[item].id}"><p>${model[item].contents}</p>
+				<div class="itemContents" id="${model[item].id}">`
+					/*
+					<p>${model[item].contents}</p>
+			
 				${model[item].question == '' ? `` : `<fieldset><legend>${model[item].question}</legend>`}
 			`;
 				// if there are more than 2 paths, radio buttons should be displayed vertically
@@ -1136,10 +1026,80 @@
 
 				// once this group of paths is processed, change radio buttons back to horizontal
 				globals.radioButtonsVertical = false;
-				o += `${model[item].question == '' ? `` : `</fieldset>`}</div></div>`;
+				o += `${model[item].question == '' ? `` : `</fieldset>`}
+				*/
+				o += getModelItemHtml(item);
+				o +=`</div></div>`;
 
 			}
 			modelOutput.innerHTML = o;
+		}
+
+		function getModelItemHtml(item) {
+			var o = '';
+			o += `
+				<p>${model[item].contents}</p>
+				${model[item].question == '' ? `` : `<fieldset><legend>${model[item].question}</legend>`}
+			`;
+			// if there are more than 2 paths, radio buttons should be displayed vertically
+			if (model[item].paths.length > 2) {
+				globals.radioButtonsVertical = true;
+			}
+
+			for (subitem in model[item].paths) {
+				if (model[item].paths[subitem].objectType == 'radio') {
+					console.log('getModelItemHtml: radio fired');
+					o += `${radioEl(
+						model[item].paths[subitem].header,
+						model[item].paths[subitem].name,
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].val,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].disabled)}`;
+				} else if (model[item].paths[subitem].objectType == 'select') {
+					console.log('getModelItemHtml: select fired');
+					o += `${selectEl(
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].disabled,
+						model[item].paths[subitem].options)}`;
+				} else if (model[item].paths[subitem].objectType == 'textInput') {
+					console.log('getModelItemHtml: textInput fired');
+					o += `${textInputEl(
+						model[item].paths[subitem].label,
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].val,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].disabled)}`;
+				} else if (model[item].paths[subitem].objectType == 'textarea') {
+					console.log('getModelItemHtml: textarea fired');
+					o += `${textareaEl(
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].rows)}`;
+				} else if (model[item].paths[subitem].objectType == 'datePicker') {
+					console.log('getModelItemHtml: datePicker fired');
+					o += `${textareaEl(
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].rows)}`;
+				} else if (model[item].paths[subitem].objectType == 'checkbox') {
+					console.log('getModelItemHtml: checkbox fired');
+					o += `${checkboxEl(
+						model[item].paths[subitem].header,
+						model[item].paths[subitem].name,
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].val,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].disabled)}`;
+				}
+			}
+
+			// once this group of paths is processed, change radio buttons back to horizontal
+			globals.radioButtonsVertical = false;
+			o += `${model[item].question == '' ? `` : `</fieldset>`}`;
+
+			return o;
 		}
 
 		buildModel();
