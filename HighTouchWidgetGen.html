@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>High Touch Widget</title>
+	<meta http-equiv="cache-control" content="no-cache" />
+	<style>
+		body {
+			background-color: #333;
+		}
+
+		.itemHeader {
+			color: #fff;
+			background-color: #555;
+			padding: 0.5em;
+		}
+
+		.itemContents {
+			background-color: #ccc;
+			padding: 0.5em;
+			margin-bottom: 2px;
+			display: none;
+		}
+
+		fieldset {
+			padding: 0.5em 0.5em 0.5em 0;
+			margin: 0.6em;
+		}
+
+		p {
+			margin: 0.1em 0.6em;
+		}
+
+		legend {
+			font-family: sans-serif;
+			font-size: 9pt;
+			margin-left: 1em;
+		}
+
+		.radio {
+			margin-left: 1em;
+		}
+
+		.checkbox {
+			margin-left: 1em;
+		}
+
+		select {
+			margin-left: 1em;
+		}
+
+		textarea {
+			margin-left: 1em;
+			width: 95%;
+		}
+
+		.singleTextInput {
+			margin-left: 1em;
+		}
+
+		.titleText {
+			font-size: 3em;
+			color: #fff;
+			vertical-align: middle;
+		}
+
+		.bodytext {
+			color: #fff;
+			padding-bottom: 1em;
+			padding-left: 0.4em;
+		}
+
+		#mainContent {
+			display: flex;
+			align-items: flex-start;
+		}
+
+		#modelOutput {
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+			width: 60%;
+			margin-right: 1em;
+		}
+
+		#commentOutput {
+			display: flex;
+			flex-direction: column;
+			width: 38%;
+			background-color: #ddd;
+		}
+
+		.cc {
+			border-radius: 4px;
+			background-color: #fff;
+			margin-top: 1em;
+		}
+
+		#outcomments,
+		#outsubject {
+			font-family: courier;
+			font-size: 10pt;
+			padding: 0 0.4em;
+		}
+	</style>
+</head>
+
+<body>
+
+
+
+
+
+
+	<table class="introTable" border="0">
+		<tr>
+			<td rowspan="2">
+			</td>
+			<td class="titleText">High Touch Widget</td>
+		</tr>
+		<tr>
+			<td class=bodytext>
+				<!--TOBE REPLACED......-->
+			</td>
+		</tr>
+	</table>
+
+	<div id="mainContent">
+		<div id="modelOutput"></div>
+		<div id="commentOutput">
+			<div id="calconnect_output">
+				<div class="itemHeader">Paste this into the call log</div>
+				<fieldset class="cc">
+					<legend>Subject</legend>
+					<div id="outSubject" contenteditable="true" tabindex="-97"></div>
+				</fieldset>
+				<fieldset class="cc">
+					<legend>Comments</legend>
+					<div id="outComments" contenteditable="true" tabindex="-98"></div>
+				</fieldset>
+			</div>
+		</div>
+	</div>
+	<div>
+		<input type="button" onclick="resetForm()" value="Reset">
+	</div>
+
+	<script>
+		var globals = {
+
+			// Tells the script to add a <br> after each radio button to display them vertically when true.
+			//   Currently set to true when a fieldset contains more than 2 radio buttons.
+			radioButtonsVertical: false,
+			// modelItemsCount: 2
+
+		}
+		function resetForm() {
+			window.location.reload(true);
+		}
+
+		// builds radio elements, called when buildModel() process a path with objectType radio
+		function radioEl(label, name, id, val, action, disabled) {
+			return (`<input type="radio" name="${name}" value="${val}" class="radio" onChange="${action}"> ${label} ${globals.radioButtonsVertical ? `<br>` : ``}`);
+		}
+
+		// Builds select form elements, called when buildModel() process a path with objectType select.
+		//   «sOptions» is an array of objects in the format
+		//   «{label: 'dropdownMenuItemText, value: valuePassedToActionUponSelect'}». If a third property is listed
+		//   «disable: true» the menu item is not selectable. This is useful for grouping items in a dropdown by
+		//   separating them with a disabled/blank line, or a disabled header that describes the grouping.
+		function selectEl(id, action, disabled, sOptions) {
+			var so = `<select onChange="${action}">`;
+			for (option in sOptions) {
+				so += `<option ${sOptions[option].disabled ? `disabled` : ``} value="${sOptions[option].value}">${sOptions[option].label}</option>`;
+			}
+			so += '</select>';
+			return (so);
+		}
+
+		// builds textInput fields, called when buildModel() process a path with objectType textInput
+		function textInputEl(label, id, val, action, disabled) {
+			return (`<input class="singleTextInput" value="${val}" onChange="${action}" ${disabled ? `disabled` : ``}> ${label}${globals.radioButtonsVertical ? `<br>` : ``}`);
+		}
+
+		// builds textarea fields, called when buildModel() process a path with objectType textarea
+		function textareaEl(id, action, rows) {
+			return (`<textarea name="${id}" onChange="${action}"></textarea>`);
+		}
+
+		// builds datePicker fields, called when buildModel() process a path with objectType datePickerEl
+		function datePickerEl(id, action, disabled) {
+			return (`<input id="${id}" type="date" onChange="${action}" ${sOptions[option].disabled ? `disabled` : ``}>`);
+		}
+
+		// builds checkbox elements, called when buildModel() process a path with objectType checkbox
+		function checkboxEl(label, name, id, val, action, disabled) {
+			return (`<input type="checkbox" name="${name}" value="${val}" class="checkbox" onChange="${action}"> ${label}${globals.radioButtonsVertical ? `<br>` : ``}`);
+		}
+
+
+
+
+
+
+
+		// receives data from a form action and distributes that data to the appropriate functions 
+		function handleAction(sequence, theData, dataDestination) {
+			console.log("In handleAcrtion");
+			console.log(`sequence: ${sequence}`);
+			/*console.log(`children: ${children}`);
+			if (children) {
+				console.log('children: '+ JSON.stringify(children));
+				console.log('children[0].id: '+ children[0].id);
+			}*/
+
+			console.log("model[sequence-1]: " + JSON.stringify(model[sequence - 1]));
+
+
+			try {
+				// console.log(`model: `+ JSON.stringify(model));
+				/* if (sequence == globals.modelItemsCount) {
+					return;
+				}*/
+				console.log("Object.keys(model).length: " + Object.keys(model).length)
+
+				if (sequence == Object.keys(model).length) {
+					return;
+				}
+				// show next element in the sequence
+				window[model[sequence].id].style.display = 'block';
+			} catch (error) {
+				console.error("Error in handleAction(...)")
+				console.error(error);
+				// expected output: ReferenceError: nonExistentFunction is not defined
+				// Note - error messages will vary depending on browser
+			}
+		}
+
+
+
+
+
+		// This is where you define the "outline" of the decision tree in JSON format.
+		//   You can define a header (or leave it as an empty string «''» if you don't want one), the text contents
+		//   of this block, the question that you want answered (which will draw a box around the form element), and
+		//   the paths forward presented by the form element.
+		//   
+		//   All of the branches of the tree will be created when the page is loaded, but only the first one will
+		//   be displayed -- the rest are hidden via stylesheets «display = 'none'». Choosing an option in a form
+		//   element determines which new branch to reveal by changing its style to «display = 'block'». It also
+		//   stores the new branch ID in the «globals.branchesRevealed» array so the widget can keep track of
+		//   what it branches it needs to hide and what data it needs to delete if someone backtracks, stores
+		//   the data generated in that branch, and updates the text of the subject and comments boxes.
+		// var children = { "children" : [ {"id" : "caseHighRiskHouseholdContacts", "show": "yes"} ] };
+
+		// optional: false for questions are  needed to answer and true for questions that are not mandatory
+		// and show all next optional questions based on current selection
+
+		// children based on current parent selection show the children else hide, children should have 
+		// parent to differentiate and avoid displaying
+		var model = [
+			/*
+			1. What type of interview did you complete? 
+			Initial Interview 
+			Monitoring and Support 
+			*/
+			{
+				sequence: 1,
+				header: 'Call Script',
+				id: 'interviewTypeCompleted',
+				objectType: 'script',
+				optional: null,
+				children: [
+				],
+				parent: null,
+				contents: ``,
+				question: `What type of interview did you complete?`,
+				paths: [
+					{
+						header: 'Initial Interview',
+						objectType: 'radio',
+						name: 'interviewTypeCompleted',
+						id: 'interviewTypeCompleted',
+						val: 'Initial Interview',
+						// action: `handleAction(1, 'interviewTypeCompleted', 'Interview Type : Initial Interview', 'subject', 'radio')`,
+						action: `handleAction(1, 'Interview Type : Initial Interview', 'subject')`,
+						disabled: '',
+						contents: `You selected Monitoring and Support`,
+					},
+					{
+						header: 'Monitoring and Support',
+						objectType: 'radio',
+						name: 'interviewTypeCompleted',
+						id: 'interviewTypeCompleted',
+						val: 'Monitoring and Support',
+						// action: `handleAction(1, 'interviewTypeCompleted', 'Interview Type : Monitoring and Support', 'subject', 'radio')`,
+						action: `handleAction(1, 'Interview Type : Monitoring and Support', 'subject')`,
+						disabled: '',
+						contents: `You selected Monitoring and Support`,
+					}
+				]
+			},
+			/*
+			2. Did you complete an interview for a case or contact? 
+			Case 
+			Contact 
+			*/
+			{
+				sequence: 2,
+				header: '',
+				id: 'interviewCaseOrContact',
+				objectType: 'script',
+				optional: null,
+				children: [
+					{
+						id: 'caseHighRiskHouseholdContacts',
+						showWhenParentValue: 'Case'
+					}
+				],
+				parent: null,
+				contents: ``,
+				question: `Did you complete an interview for a case or contact?`,
+				paths: [
+					{
+						header: 'Case',
+						objectType: 'radio',
+						name: 'interviewCaseOrContact',
+						id: 'interviewCaseOrContact',
+						val: 'Case',
+						// action: `handleAction(2, 'interviewCaseOrContact', 'Type of Record : Case', 'comments', 'radio', '{ [ {id : \`caseHighRiskHouseholdContacts\`, show: \`yes\`} ] }')`,
+						action: `handleAction(2, 'Type of Record : Case', 'comments')`,
+						disabled: '',
+						contents: `You selected Case'`,
+					},
+					{
+						header: 'Contact',
+						objectType: 'radio',
+						name: 'interviewCaseOrContact',
+						id: 'interviewCaseOrContact',
+						val: 'Contact',
+						// action: `handleAction(2, 'interviewCaseOrContact', 'Type of Record : Contact', 'comments', 'radio', null)`,
+						action: `handleAction(2, 'Type of Record : Contact', 'comments')`,
+						disabled: '',
+						contents: `You selected Contact'`,
+					}
+				]
+			},
+			/*
+			3. Were any social determinants of health needs identified during the interview? 
+			Yes 
+			No 
+			*/
+			{
+				sequence: 3,
+				header: '',
+				id: 'socialHealthDeterminantsYesOrNo',
+				objectType: 'script',
+				optional: null,
+				children: [
+				],
+				parent: null,
+				contents: ``,
+				question: `Were any social determinants of health needs identified during the interview?`,
+				paths: [
+					{
+						header: 'Yes',
+						objectType: 'radio',
+						name: 'socialHealthDeterminantsYesOrNo',
+						id: 'socialHealthDeterminantsYesOrNo',
+						val: 'Yes',
+						// action: `handleAction(3, 'socialHealthDeterminantsYesOrNo', 'Social Determinants : Yes', 'comments', 'radio')`,
+						action: `handleAction(3, 'Social Determinants : Yes', 'comments')`,
+						disabled: '',
+						contents: `You selected Yes'`,
+					},
+					{
+						header: 'No',
+						objectType: 'radio',
+						name: 'socialHealthDeterminantsYesOrNo',
+						id: 'socialHealthDeterminantsYesOrNo',
+						val: 'No',
+						// action: `handleAction(3, 'socialHealthDeterminantsYesOrNo', 'Social Determinants : No', 'comments', 'radio')`,
+						action: `handleAction(3, 'Social Determinants : No', 'comments')`,
+						disabled: '',
+						contents: `You selected No'`,
+					}
+				]
+			},
+			/*
+			12. Does the Case have any high-risk household contacts? (Only if Q2 – Case is selected) 
+			Yes  
+			No
+			*/
+			{
+				sequence: 4,
+				header: '',
+				id: 'caseHighRiskHouseholdContacts',
+				objectType: 'script',
+				optional: null,
+				children: [
+				],
+				parent: 'interviewCaseOrContact',
+				contents: ``,
+				question: `Does the Case have any high-risk household contacts?`,
+				paths: [
+					{
+						header: 'Yes',
+						objectType: 'radio',
+						name: 'caseHighRiskHouseholdContacts',
+						id: 'caseHighRiskHouseholdContacts',
+						val: 'Yes',
+						// action: `handleAction(4, 'caseHighRiskHouseholdContacts', 'High Risk Household Contacts : Yes', 'comments')`,
+						action: `handleAction(4, 'High Risk Household Contacts : Yes', 'comments')`,
+						disabled: '',
+						contents: `You selected Yes'`,
+					},
+					{
+						header: 'No',
+						objectType: 'radio',
+						name: 'caseHighRiskHouseholdContacts',
+						id: 'socialHealthDeterminantsYesOrNo',
+						val: 'No',
+						// action: `handleAction(4, 'caseHighRiskHouseholdContacts', 'High Risk Household Contacts : No', 'comments')`,
+						action: `handleAction(4, 'High Risk Household Contacts : No', 'comments')`,
+						disabled: '',
+						contents: `You selected No'`,
+					}
+				]
+			},
+		]
+
+		function buildModel() {
+			var o = '';
+			for (item in model) {
+				o += `
+			<div class="item">
+				${model[item].header == '' ? `` : `<div class="itemHeader">${model[item].header}</div>`}
+				<div class="itemContents" id="${model[item].id}">`;
+				o += getModelItemHtml(item);
+				o += `</div></div>`;
+
+			}
+			modelOutput.innerHTML = o;
+		}
+
+		function getModelItemHtml(item) {
+			var o = '';
+			o += `
+				<p>${model[item].contents}</p>
+				${model[item].question == '' ? `` : `<fieldset><legend>${model[item].question}</legend>`}
+			`;
+			// if there are more than 2 paths, radio buttons should be displayed vertically
+			if (model[item].paths.length > 2) {
+				globals.radioButtonsVertical = true;
+			}
+
+			for (subitem in model[item].paths) {
+				if (model[item].paths[subitem].objectType == 'radio') {
+					console.log('getModelItemHtml: radio fired');
+					o += `${radioEl(
+						model[item].paths[subitem].header,
+						model[item].paths[subitem].name,
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].val,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].disabled)}`;
+				} else if (model[item].paths[subitem].objectType == 'select') {
+					console.log('getModelItemHtml: select fired');
+					o += `${selectEl(
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].disabled,
+						model[item].paths[subitem].options)}`;
+				} else if (model[item].paths[subitem].objectType == 'textInput') {
+					console.log('getModelItemHtml: textInput fired');
+					o += `${textInputEl(
+						model[item].paths[subitem].label,
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].val,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].disabled)}`;
+				} else if (model[item].paths[subitem].objectType == 'textarea') {
+					console.log('getModelItemHtml: textarea fired');
+					o += `${textareaEl(
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].rows)}`;
+				} else if (model[item].paths[subitem].objectType == 'datePicker') {
+					console.log('getModelItemHtml: datePicker fired');
+					o += `${textareaEl(
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].rows)}`;
+				} else if (model[item].paths[subitem].objectType == 'checkbox') {
+					console.log('getModelItemHtml: checkbox fired');
+					o += `${checkboxEl(
+						model[item].paths[subitem].header,
+						model[item].paths[subitem].name,
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].val,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].disabled)}`;
+				}
+			}
+
+			// once this group of paths is processed, change radio buttons back to horizontal
+			globals.radioButtonsVertical = false;
+			o += `${model[item].question == '' ? `` : `</fieldset>`}`;
+
+			return o;
+		}
+
+		buildModel();
+		window[model[0].id].style.display = 'block';
+		// window.yourName.style.display = 'block';
+		// window.yourTitle.style.display = 'block';
+
+	</script>
+
+</body>
+
+</html>
