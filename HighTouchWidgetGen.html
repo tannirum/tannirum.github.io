@@ -213,7 +213,7 @@
 				console.log('children[0].id: '+ children[0].id);
 			}*/
 
-			console.log("model[sequence-1]: " + JSON.stringify(model[sequence - 1]));
+			// console.log("model[sequence-1]: " + JSON.stringify(model[sequence - 1]));
 
 
 			try {
@@ -240,7 +240,7 @@
 
 				// check is it radio element
 				console.log("Object.keys(model[sequence - 1].children).length: " + Object.keys(model[sequence - 1].children).length);
-				if (model[sequence].elementType == "radio" && Object.keys(model[sequence - 1].children).length > 0) {
+				if ((model[sequence - 1].elementType == "radio" || model[sequence - 1].elementType == "checkbox") && Object.keys(model[sequence - 1].children).length > 0) {
 
 					let currentSelectionRadios = document.getElementsByName(model[sequence - 1].id);
 
@@ -248,6 +248,7 @@
 					(model[sequence - 1].children).forEach(ele => {
 						childEle = document.getElementById(ele.childId);
 						if (childEle) {
+							// TODO instead of hiding replace the inner HTML to clear selection
 							childEle.style.display = 'none';
 						}
 					});
@@ -265,18 +266,31 @@
 
 					// show children based on selection value
 					if (currentSelectionRadioVal) {
-						// display any children based on current selection value					
-						(model[sequence - 1].children).forEach(ele => {
+						// display any children if there is any checkbox option selected
+						if (model[sequence - 1].elementType == "checkbox") {
+							(model[sequence - 1].children).forEach(ele => {
 
-							if (ele.showWhenParentValue == currentSelectionRadioVal) {
-								console.log("Found child");
 								childEle = document.getElementById(ele.childId);
 
 								if (childEle) {
 									childEle.style.display = 'block';
 								}
-							}
-						})
+							})
+						} else {
+							// radio options - display any children based on current selection value
+							(model[sequence - 1].children).forEach(ele => {
+
+								if (ele.showWhenParentValue == currentSelectionRadioVal) {
+									console.log("Found child");
+									childEle = document.getElementById(ele.childId);
+
+									if (childEle) {
+										childEle.style.display = 'block';
+									}
+								}
+							})
+						}
+
 					}
 				}
 
@@ -412,6 +426,10 @@
 				objectType: 'script',
 				optional: null,
 				children: [
+					{
+						childId: 'socialHealthDeterminantsIdentified',
+						showWhenParentValue: 'Yes'
+					}
 				],
 				parent: null,
 				elementType: 'radio',
@@ -462,8 +480,12 @@
 				objectType: 'script',
 				optional: null,
 				children: [
+					{
+						childId: 'socialHealthDeterminantsUrgentNeeds',
+						showWhenParentValue: 'Yes'
+					}
 				],
-				parent: null,
+				parent: 'socialHealthDeterminantsYesOrNo',
 				elementType: 'checkbox',
 				contents: ``,
 				question: `Please identify the social determinants of health needs`,
@@ -577,14 +599,14 @@
 			No 
 			*/
 			{
-				sequence : 5,
+				sequence: 5,
 				header: '',
 				id: 'socialHealthDeterminantsUrgentNeeds',
 				objectType: 'script',
 				optional: null,
 				children: [
 				],
-				parent: null,
+				parent: 'socialHealthDeterminantsIdentified',
 				elementType: 'radio',
 				contents: ``,
 				question: `Are any of these needs urgent?`,
@@ -617,7 +639,7 @@
 			No 
 			*/
 			{
-				sequence : 6,
+				sequence: 6,
 				header: '',
 				id: 'clientConsentSendingReferrals',
 				objectType: 'script',
@@ -659,7 +681,7 @@
 			Self (resource referral made by CET)
 			*/
 			{
-				sequence : 7,
+				sequence: 7,
 				header: '',
 				id: 'referralsMade',
 				objectType: 'script',
@@ -721,7 +743,7 @@
 			3 
 			*/
 			{
-				sequence : 8,
+				sequence: 8,
 				header: '',
 				id: 'assitanceClientNeeded',
 				objectType: 'script',
@@ -756,7 +778,7 @@
 			high 
 			*/
 			{
-				sequence : 9,
+				sequence: 9,
 				header: '',
 				id: 'levelOfCaseAssistance',
 				objectType: 'script',
@@ -789,7 +811,7 @@
 			No 
 			*/
 			{
-				sequence : 10,
+				sequence: 10,
 				header: '',
 				id: 'clientConsentMonitoringSupport',
 				objectType: 'script',
@@ -828,7 +850,7 @@
 			Text Field to enter date
 			*/
 			{
-				sequence : 11,
+				sequence: 11,
 				header: '',
 				id: 'clientFollowupDate',
 				objectType: 'script',
@@ -893,7 +915,7 @@
 			13. Please provide any additional special considerations you may regarding this interview
 			*/
 			{
-				sequence : 13,
+				sequence: 13,
 				header: '',
 				id: 'additionalSpecialConsiderations',
 				objectType: 'script',
@@ -917,7 +939,7 @@
 
 			// Interviewer Info
 			{
-				sequence : 14,
+				sequence: 14,
 				header: 'Interviewer Info',
 				id: 'yourName',
 				objectType: 'script',
@@ -939,7 +961,7 @@
 				]
 			},
 			{
-				sequence : 15,
+				sequence: 15,
 				header: '',
 				id: 'yourTitle',
 				objectType: 'script',
