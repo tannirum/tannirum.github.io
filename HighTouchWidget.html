@@ -964,72 +964,72 @@
 			<div class="item">
 				${model[item].header == '' ? `` : `<div class="itemHeader">${model[item].header}</div>`}
 				<div class="itemContents" id="${model[item].id}">`
-					/*
-					<p>${model[item].contents}</p>
-			
-				${model[item].question == '' ? `` : `<fieldset><legend>${model[item].question}</legend>`}
-			`;
-				// if there are more than 2 paths, radio buttons should be displayed vertically
-				if (model[item].paths.length > 2) {
-					globals.radioButtonsVertical = true;
+				/*
+				<p>${model[item].contents}</p>
+		
+			${model[item].question == '' ? `` : `<fieldset><legend>${model[item].question}</legend>`}
+		`;
+			// if there are more than 2 paths, radio buttons should be displayed vertically
+			if (model[item].paths.length > 2) {
+				globals.radioButtonsVertical = true;
+			}
+
+			for (subitem in model[item].paths) {
+
+				if (model[item].paths[subitem].objectType == 'radio') {
+					console.log('radio fired');
+					o += `${radioEl(
+						model[item].paths[subitem].header,
+						model[item].paths[subitem].name,
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].val,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].disabled)}`;
+				} else if (model[item].paths[subitem].objectType == 'select') {
+					console.log('select fired');
+					o += `${selectEl(
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].disabled,
+						model[item].paths[subitem].options)}`;
+				} else if (model[item].paths[subitem].objectType == 'textInput') {
+					console.log('textInput fired');
+					o += `${textInputEl(
+						model[item].paths[subitem].label,
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].val,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].disabled)}`;
+				} else if (model[item].paths[subitem].objectType == 'textarea') {
+					console.log('textarea fired');
+					o += `${textareaEl(
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].rows)}`;
+				} else if (model[item].paths[subitem].objectType == 'datePicker') {
+					console.log('datePicker fired');
+					o += `${textareaEl(
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].rows)}`;
+				} else if (model[item].paths[subitem].objectType == 'checkbox') {
+					console.log('checkbox fired');
+					o += `${checkboxEl(
+						model[item].paths[subitem].header,
+						model[item].paths[subitem].name,
+						model[item].paths[subitem].id,
+						model[item].paths[subitem].val,
+						model[item].paths[subitem].action,
+						model[item].paths[subitem].disabled)}`;
 				}
+			}
 
-				for (subitem in model[item].paths) {
-
-					if (model[item].paths[subitem].objectType == 'radio') {
-						console.log('radio fired');
-						o += `${radioEl(
-							model[item].paths[subitem].header,
-							model[item].paths[subitem].name,
-							model[item].paths[subitem].id,
-							model[item].paths[subitem].val,
-							model[item].paths[subitem].action,
-							model[item].paths[subitem].disabled)}`;
-					} else if (model[item].paths[subitem].objectType == 'select') {
-						console.log('select fired');
-						o += `${selectEl(
-							model[item].paths[subitem].id,
-							model[item].paths[subitem].action,
-							model[item].paths[subitem].disabled,
-							model[item].paths[subitem].options)}`;
-					} else if (model[item].paths[subitem].objectType == 'textInput') {
-						console.log('textInput fired');
-						o += `${textInputEl(
-							model[item].paths[subitem].label,
-							model[item].paths[subitem].id,
-							model[item].paths[subitem].val,
-							model[item].paths[subitem].action,
-							model[item].paths[subitem].disabled)}`;
-					} else if (model[item].paths[subitem].objectType == 'textarea') {
-						console.log('textarea fired');
-						o += `${textareaEl(
-							model[item].paths[subitem].id,
-							model[item].paths[subitem].action,
-							model[item].paths[subitem].rows)}`;
-					} else if (model[item].paths[subitem].objectType == 'datePicker') {
-						console.log('datePicker fired');
-						o += `${textareaEl(
-							model[item].paths[subitem].id,
-							model[item].paths[subitem].action,
-							model[item].paths[subitem].rows)}`;
-					} else if (model[item].paths[subitem].objectType == 'checkbox') {
-						console.log('checkbox fired');
-						o += `${checkboxEl(
-							model[item].paths[subitem].header,
-							model[item].paths[subitem].name,
-							model[item].paths[subitem].id,
-							model[item].paths[subitem].val,
-							model[item].paths[subitem].action,
-							model[item].paths[subitem].disabled)}`;
-					}
-				}
-
-				// once this group of paths is processed, change radio buttons back to horizontal
-				globals.radioButtonsVertical = false;
-				o += `${model[item].question == '' ? `` : `</fieldset>`}
-				*/
+			// once this group of paths is processed, change radio buttons back to horizontal
+			globals.radioButtonsVertical = false;
+			o += `${model[item].question == '' ? `` : `</fieldset>`}
+			*/
 				o += getModelItemHtml(item);
-				o +=`</div></div>`;
+				o += `</div></div>`;
 
 			}
 			modelOutput.innerHTML = o;
