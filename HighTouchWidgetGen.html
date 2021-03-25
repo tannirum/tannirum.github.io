@@ -226,8 +226,17 @@
 				if (sequence == Object.keys(model).length) {
 					return;
 				}
-				// show next element in the sequence
-				window[model[sequence].id].style.display = 'block';
+				// show next element in the sequence until next elements has no dependency parent
+				console.log('model[sequence].parent: ' + model[sequence].parent);
+				for (i = sequence; i < Object.keys(model).length; i++) {
+					if (!model[i].parent) {
+						// window[model[sequence].id].style.display = 'block';
+						window[model[i].id].style.display = 'block';
+						break;
+					}
+				}
+
+
 
 				// check is it radio element
 				console.log("Object.keys(model[sequence - 1].children).length: " + Object.keys(model[sequence - 1].children).length);
@@ -434,12 +443,141 @@
 				]
 			},
 			/*
+			4. (if question 3 – yes is selected). Please identify the social determinants of health needs  
+			Food 
+			Housing 
+			Financial  
+			Utilities 
+			Household 
+			Children 
+			Transportation 
+			Literacy 
+			Technology 
+			Medical
+			*/
+			{
+				sequence: 4,
+				header: '',
+				id: 'socialHealthDeterminantsIdentified',
+				objectType: 'script',
+				optional: null,
+				children: [
+				],
+				parent: null,
+				elementType: 'checkbox',
+				contents: ``,
+				question: `Please identify the social determinants of health needs`,
+				paths: [
+					{
+						header: 'Food',
+						objectType: 'checkbox',
+						name: 'socialHealthDeterminantsIdentified',
+						id: 'socialHealthDeterminantsIdentified',
+						val: 'Food',
+						action: `handleAction(4, 'Social Determinant Needs : Food', 'comments')`,
+						disabled: '',
+						contents: `You selected Food'`,
+					},
+					{
+						header: 'Housing',
+						objectType: 'checkbox',
+						name: 'socialHealthDeterminantsIdentified',
+						id: 'socialHealthDeterminantsIdentified',
+						val: 'Housing',
+						action: `handleAction(4, 'Social Determinant Needs : Housing', 'comments')`,
+						disabled: '',
+						contents: `You selected Housing'`,
+					},
+					{
+						header: 'Financial',
+						objectType: 'checkbox',
+						name: 'socialHealthDeterminantsIdentified',
+						id: 'socialHealthDeterminantsIdentified',
+						val: 'Financial',
+						action: `handleAction(4, 'Social Determinant Needs : Financial', 'comments')`,
+						disabled: '',
+						contents: `You selected Financial'`,
+					},
+					{
+						header: 'Utilities',
+						objectType: 'checkbox',
+						name: 'socialHealthDeterminantsIdentified',
+						id: 'socialHealthDeterminantsIdentified',
+						val: 'Utilities',
+						action: `handleAction(4, 'Social Determinant Needs : Utilities', 'comments')`,
+						disabled: '',
+						contents: `You selected Utilities'`,
+					},
+					{
+						header: 'Household',
+						objectType: 'checkbox',
+						name: 'socialHealthDeterminantsIdentified',
+						id: 'socialHealthDeterminantsIdentified',
+						val: 'Household',
+						action: `handleAction(4, 'Social Determinant Needs : Household', 'comments')`,
+						disabled: '',
+						contents: `You selected Household'`,
+					},
+					{
+						header: 'Children',
+						objectType: 'checkbox',
+						name: 'socialHealthDeterminantsIdentified',
+						id: 'socialHealthDeterminantsIdentified',
+						val: 'Children',
+						action: `handleAction(4, 'Social Determinant Needs : Children', 'comments')`,
+						disabled: '',
+						contents: `You selected Children'`,
+					},
+					{
+						header: 'Transportation',
+						objectType: 'checkbox',
+						name: 'socialHealthDeterminantsIdentified',
+						id: 'socialHealthDeterminantsIdentified',
+						val: 'Transportation',
+						action: `handleAction(4, 'Social Determinant Needs : Transportation', 'comments')`,
+						disabled: '',
+						contents: `You selected Transportation'`,
+					},
+					{
+						header: 'Literacy',
+						objectType: 'checkbox',
+						name: 'socialHealthDeterminantsIdentified',
+						id: 'socialHealthDeterminantsIdentified',
+						val: 'Literacy',
+						action: `handleAction(4, 'Social Determinant Needs : Literacy', 'comments')`,
+						disabled: '',
+						contents: `You selected Literacy'`,
+					},
+					{
+						header: 'Technology',
+						objectType: 'checkbox',
+						name: 'socialHealthDeterminantsIdentified',
+						id: 'socialHealthDeterminantsIdentified',
+						val: 'Technology',
+						action: `handleAction(4, 'Social Determinant Needs : Technology', 'comments')`,
+						disabled: '',
+						contents: `You selected Technology'`,
+					},
+					{
+						header: 'Medical',
+						objectType: 'checkbox',
+						name: 'socialHealthDeterminantsIdentified',
+						id: 'socialHealthDeterminantsIdentified',
+						val: 'Medical',
+						action: `handleAction(4, 'Social Determinant Needs : Medical', 'comments')`,
+						disabled: '',
+						contents: `You selected Medical'`,
+					}
+
+				]
+			},
+			/*
 			12. Does the Case have any high-risk household contacts? (Only if Q2 – Case is selected) 
 			Yes  
 			No
 			*/
 			{
-				sequence: 4,
+				sequence: 5,
 				header: '',
 				id: 'caseHighRiskHouseholdContacts',
 				objectType: 'script',
@@ -457,8 +595,7 @@
 						name: 'caseHighRiskHouseholdContacts',
 						id: 'caseHighRiskHouseholdContacts',
 						val: 'Yes',
-						// action: `handleAction(4, 'caseHighRiskHouseholdContacts', 'High Risk Household Contacts : Yes', 'comments')`,
-						action: `handleAction(4, 'High Risk Household Contacts : Yes', 'comments')`,
+						action: `handleAction(5, 'High Risk Household Contacts : Yes', 'comments')`,
 						disabled: '',
 						contents: `You selected Yes'`,
 					},
@@ -468,8 +605,7 @@
 						name: 'caseHighRiskHouseholdContacts',
 						id: 'socialHealthDeterminantsYesOrNo',
 						val: 'No',
-						// action: `handleAction(4, 'caseHighRiskHouseholdContacts', 'High Risk Household Contacts : No', 'comments')`,
-						action: `handleAction(4, 'High Risk Household Contacts : No', 'comments')`,
+						action: `handleAction(5, 'High Risk Household Contacts : No', 'comments')`,
 						disabled: '',
 						contents: `You selected No'`,
 					}
