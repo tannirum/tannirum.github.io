@@ -228,6 +228,50 @@
 				}
 				// show next element in the sequence
 				window[model[sequence].id].style.display = 'block';
+
+				// check is it radio element
+				console.log("Object.keys(model[sequence - 1].children).length: " + Object.keys(model[sequence - 1].children).length);
+				if (model[sequence].elementType == "radio" && Object.keys(model[sequence - 1].children).length > 0) {
+
+					let currentSelectionRadios = document.getElementsByName(model[sequence - 1].id);
+
+					// hide children
+					(model[sequence - 1].children).forEach(ele => {
+						childEle = document.getElementById(ele.childId);
+						if (childEle) {
+							childEle.style.display = 'none';
+						}
+					});
+
+					let currentSelectionRadioVal = null;
+					for (let i = 0; i < currentSelectionRadios.length; i++) {
+						if (currentSelectionRadios[i].checked) {
+							// checked radio
+							currentSelectionRadioVal = currentSelectionRadios[i].value;
+							break;
+						}
+					}
+
+					console.log("currentSelectionRadioVal: " + currentSelectionRadioVal);
+
+					// show children based on selection value
+					if (currentSelectionRadioVal) {
+						// display any children based on current selection value					
+						(model[sequence - 1].children).forEach(ele => {
+
+							if (ele.showWhenParentValue == currentSelectionRadioVal) {
+								console.log("Found child");
+								childEle = document.getElementById(ele.childId);
+
+								if (childEle) {
+									childEle.style.display = 'block';
+								}
+							}
+						})
+					}
+				}
+
+
 			} catch (error) {
 				console.error("Error in handleAction(...)")
 				console.error(error);
@@ -273,6 +317,7 @@
 				children: [
 				],
 				parent: null,
+				elementType: 'radio',
 				contents: ``,
 				question: `What type of interview did you complete?`,
 				paths: [
@@ -313,11 +358,12 @@
 				optional: null,
 				children: [
 					{
-						id: 'caseHighRiskHouseholdContacts',
+						childId: 'caseHighRiskHouseholdContacts',
 						showWhenParentValue: 'Case'
 					}
 				],
 				parent: null,
+				elementType: 'radio',
 				contents: ``,
 				question: `Did you complete an interview for a case or contact?`,
 				paths: [
@@ -359,6 +405,7 @@
 				children: [
 				],
 				parent: null,
+				elementType: 'radio',
 				contents: ``,
 				question: `Were any social determinants of health needs identified during the interview?`,
 				paths: [
@@ -400,6 +447,7 @@
 				children: [
 				],
 				parent: 'interviewCaseOrContact',
+				elementType: 'radio',
 				contents: ``,
 				question: `Does the Case have any high-risk household contacts?`,
 				paths: [
