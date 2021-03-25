@@ -572,16 +572,294 @@
 				]
 			},
 			/*
+			5. Are any of these needs urgent? 
+			Yes 
+			No 
+			*/
+			{
+				sequence : 5,
+				header: '',
+				id: 'socialHealthDeterminantsUrgentNeeds',
+				objectType: 'script',
+				optional: null,
+				children: [
+				],
+				parent: null,
+				elementType: 'radio',
+				contents: ``,
+				question: `Are any of these needs urgent?`,
+				paths: [
+					{
+						header: 'Yes',
+						objectType: 'radio',
+						name: 'socialHealthDeterminantsUrgentNeeds',
+						id: 'socialHealthDeterminantsUrgentNeeds',
+						val: 'Yes',
+						action: `handleAction(5, 'Urgent Needs : Yes', 'comments')`,
+						disabled: '',
+						contents: `You selected Yes'`,
+					},
+					{
+						header: 'No',
+						objectType: 'radio',
+						name: 'socialHealthDeterminantsUrgentNeeds',
+						id: 'socialHealthDeterminantsYesOrNo',
+						val: 'No',
+						action: `handleAction(5, 'Urgent Needs : No', 'comments')`,
+						disabled: '',
+						contents: `You selected No'`,
+					}
+				]
+			},
+			/*
+			6. Did the client consent to you sending referrals on their behalf? (radio button) 
+			Yes 
+			No 
+			*/
+			{
+				sequence : 6,
+				header: '',
+				id: 'clientConsentSendingReferrals',
+				objectType: 'script',
+				optional: null,
+				children: [
+				],
+				parent: null,
+				elementType: 'radio',
+				contents: ``,
+				question: `Did the client consent to you sending referrals on their behalf?`,
+				paths: [
+					{
+						header: 'Yes',
+						objectType: 'radio',
+						name: 'clientConsentSendingReferrals',
+						id: 'clientConsentSendingReferrals',
+						val: 'Yes',
+						action: `handleAction(6, 'Client Consent : Yes', 'comments')`,
+						disabled: '',
+						contents: `You selected Yes'`,
+					},
+					{
+						header: 'No',
+						objectType: 'radio',
+						name: 'clientConsentSendingReferrals',
+						id: 'clientConsentSendingReferrals',
+						val: 'No',
+						action: `handleAction(6, 'Client Consent : No', 'comments')`,
+						disabled: '',
+						contents: `You selected No'`,
+					}
+				]
+			},
+			/*
+			7. Select what referrals were made		 
+			I/Q Support  
+			Patient Health Access 
+			Clinician  
+			Self (resource referral made by CET)
+			*/
+			{
+				sequence : 7,
+				header: '',
+				id: 'referralsMade',
+				objectType: 'script',
+				optional: null,
+				children: [
+				],
+				parent: null,
+				elementType: 'checkbox',
+				contents: ``,
+				question: `Select what referrals were made`,
+				paths: [
+					{
+						header: 'I/Q Support',
+						objectType: 'checkbox',
+						name: 'referralsMade',
+						id: 'referralsMade',
+						val: 'I/Q Support',
+						action: `handleAction(7, 'Referrals Made : I/Q Support', 'comments')`,
+						disabled: '',
+						contents: `You selected I/Q Support'`,
+					},
+					{
+						header: 'Patient Health Access',
+						objectType: 'checkbox',
+						name: 'referralsMade',
+						id: 'referralsMade',
+						val: 'Patient Health Access',
+						action: `handleAction(7, 'Referrals Made : Patient Health Access', 'comments')`,
+						disabled: '',
+						contents: `You selected Patient Health Access'`,
+					},
+					{
+						header: 'Clinician',
+						objectType: 'checkbox',
+						name: 'referralsMade',
+						id: 'referralsMade',
+						val: 'Clinician',
+						action: `handleAction(7, 'Referrals Made : Clinician', 'comments')`,
+						disabled: '',
+						contents: `You selected Clinician'`,
+					},
+					{
+						header: 'Self (resource referral made by CET)',
+						objectType: 'checkbox',
+						name: 'referralsMade',
+						id: 'referralsMade',
+						val: 'Self (resource referral made by CET)',
+						action: `handleAction(7, 'Referrals Made : Self (resource referral made by CET)', 'comments')`,
+						disabled: '',
+						contents: `You selected Self (resource referral made by CET)'`,
+					},
+				]
+			},
+			/*
+			8. Please identify the level of assistance needed by the client. 
+			0 
+			1 
+			2 
+			3 
+			*/
+			{
+				sequence : 8,
+				header: '',
+				id: 'assitanceClientNeeded',
+				objectType: 'script',
+				optional: null,
+				children: [
+				],
+				parent: null,
+				elementType: 'select',
+				contents: `On a scale from 1 to 3, with 3 is the highest...`,
+				question: `Please identify the level of assistance needed by the client.`,
+				paths: [
+					{
+						objectType: 'select',
+						id: 'assitanceClientNeeded',
+						action: `handleAction(8, 'Level of Assistance Needed : '+ this.value, 'comments')`,
+						disabled: '',
+						options: [
+							{ label: '', value: '' },
+							{ label: '0', value: 0 },
+							{ label: '1', value: 1 },
+							{ label: '2', value: 2 },
+							{ label: '3', value: 3 }
+						]
+					}
+				]
+			},
+			/*
+			9. Please identify the level of care needed by the client 
+			None 
+			Low 
+			Medium 
+			high 
+			*/
+			{
+				sequence : 9,
+				header: '',
+				id: 'levelOfCaseAssistance',
+				objectType: 'script',
+				optional: null,
+				children: [
+				],
+				parent: null,
+				elementType: 'select',
+				contents: ``,
+				question: `Please identify the level of care needed by the client.`,
+				paths: [
+					{
+						objectType: 'select',
+						id: 'levelOfCaseAssistance',
+						action: `handleAction(9, 'Level of Care Needed : '+ this.value, 'comments')`,
+						disabled: '',
+						options: [
+							{ label: '', value: '' },
+							{ label: 'None', value: 'None' },
+							{ label: 'Low', value: 'Low' },
+							{ label: 'Medium', value: 'Medium' },
+							{ label: 'High', value: 'High' }
+						]
+					}
+				]
+			},
+			/*
+			10. Did the client consent to monitoring and support? (radio button) 
+			Yes 
+			No 
+			*/
+			{
+				sequence : 10,
+				header: '',
+				id: 'clientConsentMonitoringSupport',
+				objectType: 'script',
+				optional: null,
+				children: [
+				],
+				parent: null,
+				elementType: 'radio',
+				contents: ``,
+				question: `Did the client consent to monitoring and support?`,
+				paths: [
+					{
+						header: 'Yes',
+						objectType: 'radio',
+						name: 'clientConsentMonitoringSupport',
+						id: 'clientConsentMonitoringSupport',
+						val: 'Yes',
+						action: `handleAction(10, 'M & S Consent : Yes', 'comments')`,
+						disabled: '',
+						contents: `You selected Yes'`,
+					},
+					{
+						header: 'No',
+						objectType: 'radio',
+						name: 'clientConsentMonitoringSupport',
+						id: 'clientConsentMonitoringSupport',
+						val: 'No',
+						action: `handleAction(10, 'M & S Consent : No', 'comments')`,
+						disabled: '',
+						contents: `You selected No'`,
+					}
+				]
+			},
+			/*
+			11.  date do you plan on following up with the client? 
+			Text Field to enter date
+			*/
+			{
+				sequence : 11,
+				header: '',
+				id: 'clientFollowupDate',
+				objectType: 'script',
+				optional: true,
+				children: [
+				],
+				parent: null,
+				elementType: 'textInput',
+				contents: `Enter in the format mm/dd/yyyy`,
+				question: `Date do you plan on following up with the client?`,
+				paths: [
+					{
+						objectType: 'textInput',
+						label: '',
+						id: 'clientFollowupDate',
+						val: '',
+						action: `handleAction(11, 'M & S Follow-up Date : ' + this.value, 'comments')`,
+					},
+				]
+			},
+			/*
 			12. Does the Case have any high-risk household contacts? (Only if Q2 – Case is selected) 
 			Yes  
 			No
 			*/
 			{
-				sequence: 5,
+				sequence: 12,
 				header: '',
 				id: 'caseHighRiskHouseholdContacts',
 				objectType: 'script',
-				optional: null,
+				optional: true,
 				children: [
 				],
 				parent: 'interviewCaseOrContact',
@@ -595,7 +873,7 @@
 						name: 'caseHighRiskHouseholdContacts',
 						id: 'caseHighRiskHouseholdContacts',
 						val: 'Yes',
-						action: `handleAction(5, 'High Risk Household Contacts : Yes', 'comments')`,
+						action: `handleAction(12, 'High Risk Household Contacts : Yes', 'comments')`,
 						disabled: '',
 						contents: `You selected Yes'`,
 					},
@@ -605,10 +883,85 @@
 						name: 'caseHighRiskHouseholdContacts',
 						id: 'socialHealthDeterminantsYesOrNo',
 						val: 'No',
-						action: `handleAction(5, 'High Risk Household Contacts : No', 'comments')`,
+						action: `handleAction(12, 'High Risk Household Contacts : No', 'comments')`,
 						disabled: '',
 						contents: `You selected No'`,
 					}
+				]
+			},
+			/*
+			13. Please provide any additional special considerations you may regarding this interview
+			*/
+			{
+				sequence : 13,
+				header: '',
+				id: 'additionalSpecialConsiderations',
+				objectType: 'script',
+				optional: null,
+				children: [
+				],
+				parent: null,
+				elementType: 'textarea',
+				contents: ``,
+				question: `Please provide any additional special considerations you may regarding this interview`,
+				paths: [
+					{
+						objectType: 'textarea',
+						id: 'additionalSpecialConsiderations',
+						action: `handleAction(13, 'Additional/Special Considerations : '+ this.value, 'comments')`,
+						disabled: '',
+						rows: 3
+					}
+				]
+			},
+
+			// Interviewer Info
+			{
+				sequence : 14,
+				header: 'Interviewer Info',
+				id: 'yourName',
+				objectType: 'script',
+				optional: null,
+				children: [
+				],
+				parent: null,
+				elementType: 'textInput',
+				contents: ``,
+				question: `Your Name`,
+				paths: [
+					{
+						objectType: 'textInput',
+						label: '',
+						id: 'yourName',
+						val: '',
+						action: `handleAction(14, 'Your Name : ' + this.value, 'comments')`,
+					},
+				]
+			},
+			{
+				sequence : 15,
+				header: '',
+				id: 'yourTitle',
+				objectType: 'script',
+				optional: null,
+				children: [
+				],
+				parent: null,
+				elementType: 'select',
+				contents: ``,
+				question: `Your Title`,
+				paths: [
+					{
+						objectType: 'select',
+						id: 'yourTitle',
+						action: `handleAction(15, 'Your Title : '+ this.value, 'comments')`,
+						disabled: '',
+						options: [
+							{ label: '', value: '' },
+							{ label: 'CICT', value: 'CICT' },
+							{ label: 'CET', value: 'CET' }
+						]
+					},
 				]
 			},
 		]
@@ -695,9 +1048,12 @@
 		}
 
 		buildModel();
+		// show first question
 		window[model[0].id].style.display = 'block';
-		// window.yourName.style.display = 'block';
-		// window.yourTitle.style.display = 'block';
+
+		// show interviewere information
+		window.yourName.style.display = 'block';
+		window.yourTitle.style.display = 'block';
 
 	</script>
 
