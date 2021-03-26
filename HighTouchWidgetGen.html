@@ -153,6 +153,12 @@
 			radioButtonsVertical: false,
 			// modelItemsCount: 2
 
+			// «outputData» is an object that stores the output of each branch by ID. That way the subject
+			//   and comments fields can be updated each time a form action is chosen, and if a user backtracks
+			//   the data from branches that are no longer valid can be automatically removed, eliminating the
+			//   chance of unintended data indavertently remaining.
+			outputData: {},
+
 		}
 		function resetForm() {
 			window.location.reload(true);
@@ -217,6 +223,9 @@
 
 
 			try {
+				// save the data for output into comments or subject
+				saveData(model[sequence - 1].id, theData, dataDestination, model[sequence - 1].elementType);
+
 				// console.log(`model: `+ JSON.stringify(model));
 				/* if (sequence == globals.modelItemsCount) {
 					return;
@@ -256,6 +265,12 @@
 						if (childEle) {
 							// TODO instead of hiding replace the inner HTML to clear selection
 							childEle.style.display = 'none';
+
+							// delete the question ouptput data
+							delete globals.outputData[ele.childId];
+
+							// clear the question previous selections (reload model element in div)
+							// let itemHtml = getModelItemHtml(model[ele.sequence - 1]);
 						}
 					});
 
@@ -299,16 +314,72 @@
 
 					}
 				}
+
+				console.log("globals.outputData: "+ JSON.stringify(globals.outputData));
+
+				// refresh the subject and comments fields with all the current data in «globals.outputData»
+				updateOutput();
 			} catch (error) {
 				console.error("Error in handleAction(...)")
 				console.error(error);
 				// expected output: ReferenceError: nonExistentFunction is not defined
 				// Note - error messages will vary depending on browser
 			}
-
-			// output data selected into comments or subject
 		}
 
+		// takes the value «theData» of a form element in a branch «thisBranchId», tags it to be delivered
+		//   to either the "subject" field or the "comments" field «dataDestination», and stores it in
+		//   «globals.outputData.«thisBranchId»»
+		function saveData(thisBranchId, theData, dataDestination, objectType) {
+			/*
+			globals.outputData[thisBranchId] = {
+				[dataDestination]: theData
+			} */
+
+			if (objectType && objectType == 'checkbox') {
+
+				// check box data already selected
+				if (globals.outputData[thisBranchId]) {
+					/*globals.outputData[thisBranchId] = {
+						[dataDestination]: theData
+					}*/
+					// globals.outputData[thisBranchId][dataDestination] = globals.outputData[thisBranchId][dataDestination] + ", " + theData;
+					const checkboxes = document.querySelectorAll(`input[name="${thisBranchId}"]:checked`);
+					// let dataDestinationStr = thisBranchId +" : ";
+					let dataDestinationStr = theData.substring(0, theData.indexOf(":") + 2);
+					checkboxes.forEach((checkbox) => {
+						dataDestinationStr = dataDestinationStr + checkbox.value + ", ";
+					});
+
+					globals.outputData[thisBranchId][dataDestination] = dataDestinationStr.substring(0, dataDestinationStr.length - 2);
+				} else {
+					globals.outputData[thisBranchId] = {
+						[dataDestination]: theData
+					}
+				}
+
+			} else {
+				globals.outputData[thisBranchId] = {
+					[dataDestination]: theData
+				}
+			}
+
+		}
+
+		// refresh the subject and comments fields with all the current data in «globals.outputData»
+		function updateOutput() {
+			outSubject.innerHTML = '';
+			outComments.innerHTML = '';
+			for (response in globals.outputData) {
+				if (globals.outputData[response].comments) {
+					// outComments.innerHTML += `#${globals.outputData[response].comments}|<br>`;
+					outComments.innerHTML += `${globals.outputData[response].comments}|<br>`;
+				} else if (globals.outputData[response].subject) {
+					// outSubject.innerHTML = `#${globals.outputData[response].subject}|`;
+					outSubject.innerHTML = `${globals.outputData[response].subject}|`;
+				}
+			}
+		}
 
 
 
