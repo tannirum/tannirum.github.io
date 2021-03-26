@@ -270,7 +270,11 @@
 							delete globals.outputData[ele.childId];
 
 							// clear the question previous selections (reload model element in div)
-							// let itemHtml = getModelItemHtml(model[ele.sequence - 1]);
+							let childObj = model.find(obj => obj.id == ele.childId);
+							console.log("childObj: "+ JSON.stringify(childObj));
+							let itemHtml = getModelItemHtml(childObj.sequence - 1);
+							console.log("itemHtml: "+ itemHtml);
+							childEle.innerHTML = itemHtml;
 						}
 					});
 
