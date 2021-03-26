@@ -160,6 +160,10 @@
 			outputData: {},
 
 		}
+
+		/**
+		 * Resets the form
+		 */
 		function resetForm() {
 			window.location.reload(true);
 		}
@@ -203,16 +207,12 @@
 			return (`<input type="checkbox" name="${name}" value="${val}" class="checkbox" onChange="${action}"> ${label}${globals.radioButtonsVertical ? `<br>` : ``}`);
 		}
 
-
-
-
-
-
-
-		// receives data from a form action and distributes that data to the appropriate functions 
+		/* 
+		* receives data from a form action and distributes that data to the appropriate functions
+		*/
 		function handleAction(sequence, theData, dataDestination) {
-			console.log("In handleAcrtion");
-			console.log(`sequence: ${sequence}`);
+			// console.log("In handleAcrtion");
+			// console.log(`sequence: ${sequence}`);
 			/*console.log(`children: ${children}`);
 			if (children) {
 				console.log('children: '+ JSON.stringify(children));
@@ -230,14 +230,14 @@
 				/* if (sequence == globals.modelItemsCount) {
 					return;
 				}*/
-				console.log("Object.keys(model).length: " + Object.keys(model).length)
+				// console.log("Object.keys(model).length: " + Object.keys(model).length)
 
 				if (sequence == Object.keys(model).length) {
 					return;
 				}
-				// show next element in the sequence until next elements has no dependency parent
-				// If next lement is optional show until next element is not optional
-				console.log('model[sequence].parent: ' + model[sequence].parent);
+				/* Show next element in the sequence until next elements has no dependency parent and 
+				if next element is optional show until next element is not optional */
+				// console.log('model[sequence].parent: ' + model[sequence].parent);
 				for (i = sequence; i < Object.keys(model).length; i++) {
 					// child element is already displayed based on parent selection and element that has no parent and optional elements should be displayed
 					if (!model[i].parent) {
@@ -251,10 +251,8 @@
 					}
 				}
 
-
-
-				// children elements dependent on parent selection - check is it radio/checkbox element
-				console.log("Object.keys(model[sequence - 1].children).length: " + Object.keys(model[sequence - 1].children).length);
+				// children elements dependent on parent selection for radio/checkbox element selected options
+				// console.log("Object.keys(model[sequence - 1].children).length: " + Object.keys(model[sequence - 1].children).length);
 				if ((model[sequence - 1].elementType == "radio" || model[sequence - 1].elementType == "checkbox") && Object.keys(model[sequence - 1].children).length > 0) {
 
 					let currentSelectionRadios = document.getElementsByName(model[sequence - 1].id);
@@ -263,7 +261,7 @@
 					(model[sequence - 1].children).forEach(ele => {
 						childEle = document.getElementById(ele.childId);
 						if (childEle) {
-							// TODO instead of hiding replace the inner HTML to clear selection
+							// hide the dependency child in the next step depending on the parent selection child element is displayed
 							childEle.style.display = 'none';
 
 							// delete the question ouptput data
@@ -271,9 +269,9 @@
 
 							// clear the question previous selections (reload model element in div)
 							let childObj = model.find(obj => obj.id == ele.childId);
-							console.log("childObj: "+ JSON.stringify(childObj));
+							// console.log("childObj: "+ JSON.stringify(childObj));
 							let itemHtml = getModelItemHtml(childObj.sequence - 1);
-							console.log("itemHtml: "+ itemHtml);
+							// console.log("itemHtml: "+ itemHtml);
 							childEle.innerHTML = itemHtml;
 						}
 					});
@@ -287,7 +285,7 @@
 						}
 					}
 
-					console.log("currentSelectionRadioVal: " + currentSelectionRadioVal);
+					// console.log("currentSelectionRadioVal: " + currentSelectionRadioVal);
 
 					// show children based on selection value
 					if (currentSelectionRadioVal) {
@@ -306,7 +304,7 @@
 							(model[sequence - 1].children).forEach(ele => {
 
 								if (ele.showWhenParentValue == currentSelectionRadioVal) {
-									console.log("Found child");
+									// console.log("Found child");
 									childEle = document.getElementById(ele.childId);
 
 									if (childEle) {
@@ -319,15 +317,13 @@
 					}
 				}
 
-				console.log("globals.outputData: "+ JSON.stringify(globals.outputData));
+				// console.log("globals.outputData: "+ JSON.stringify(globals.outputData));
 
 				// refresh the subject and comments fields with all the current data in «globals.outputData»
 				updateOutput();
 			} catch (error) {
 				console.error("Error in handleAction(...)")
 				console.error(error);
-				// expected output: ReferenceError: nonExistentFunction is not defined
-				// Note - error messages will vary depending on browser
 			}
 		}
 
@@ -385,9 +381,6 @@
 			}
 		}
 
-
-
-
 		// This is where you define the "outline" of the decision tree in JSON format.
 		//   You can define a header (or leave it as an empty string «''» if you don't want one), the text contents
 		//   of this block, the question that you want answered (which will draw a box around the form element), and
@@ -401,7 +394,7 @@
 		//   the data generated in that branch, and updates the text of the subject and comments boxes.
 		// var children = { "children" : [ {"id" : "caseHighRiskHouseholdContacts", "show": "yes"} ] };
 
-		// optional: false for questions are  needed to answer and true for questions that are not mandatory
+		// optional: false for questions that are  needed to answer and true for questions that are not mandatory
 		// and show all next optional questions based on current selection
 
 		// children based on current parent selection show the children else hide, children should have 
@@ -1071,8 +1064,11 @@
 					},
 				]
 			},
-		]
+		];
 
+		/**
+		 * Build HTML from model
+		 */
 		function buildModel() {
 			var o = '';
 			for (item in model) {
@@ -1100,7 +1096,7 @@
 
 			for (subitem in model[item].paths) {
 				if (model[item].paths[subitem].objectType == 'radio') {
-					console.log('getModelItemHtml: radio fired');
+					// console.log('getModelItemHtml: radio fired');
 					o += `${radioEl(
 						model[item].paths[subitem].header,
 						model[item].paths[subitem].name,
@@ -1109,14 +1105,14 @@
 						model[item].paths[subitem].action,
 						model[item].paths[subitem].disabled)}`;
 				} else if (model[item].paths[subitem].objectType == 'select') {
-					console.log('getModelItemHtml: select fired');
+					// console.log('getModelItemHtml: select fired');
 					o += `${selectEl(
 						model[item].paths[subitem].id,
 						model[item].paths[subitem].action,
 						model[item].paths[subitem].disabled,
 						model[item].paths[subitem].options)}`;
 				} else if (model[item].paths[subitem].objectType == 'textInput') {
-					console.log('getModelItemHtml: textInput fired');
+					// console.log('getModelItemHtml: textInput fired');
 					o += `${textInputEl(
 						model[item].paths[subitem].label,
 						model[item].paths[subitem].id,
@@ -1124,19 +1120,19 @@
 						model[item].paths[subitem].action,
 						model[item].paths[subitem].disabled)}`;
 				} else if (model[item].paths[subitem].objectType == 'textarea') {
-					console.log('getModelItemHtml: textarea fired');
+					// console.log('getModelItemHtml: textarea fired');
 					o += `${textareaEl(
 						model[item].paths[subitem].id,
 						model[item].paths[subitem].action,
 						model[item].paths[subitem].rows)}`;
 				} else if (model[item].paths[subitem].objectType == 'datePicker') {
-					console.log('getModelItemHtml: datePicker fired');
+					// console.log('getModelItemHtml: datePicker fired');
 					o += `${textareaEl(
 						model[item].paths[subitem].id,
 						model[item].paths[subitem].action,
 						model[item].paths[subitem].rows)}`;
 				} else if (model[item].paths[subitem].objectType == 'checkbox') {
-					console.log('getModelItemHtml: checkbox fired');
+					// console.log('getModelItemHtml: checkbox fired');
 					o += `${checkboxEl(
 						model[item].paths[subitem].header,
 						model[item].paths[subitem].name,
