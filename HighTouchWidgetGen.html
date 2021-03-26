@@ -227,18 +227,24 @@
 					return;
 				}
 				// show next element in the sequence until next elements has no dependency parent
+				// If next lement is optional show until next element is not optional
 				console.log('model[sequence].parent: ' + model[sequence].parent);
 				for (i = sequence; i < Object.keys(model).length; i++) {
+					// child element is already displayed based on parent selection and element that has no parent and optional elements should be displayed
 					if (!model[i].parent) {
 						// window[model[sequence].id].style.display = 'block';
 						window[model[i].id].style.display = 'block';
+
+						if (model[i].optional && model[i].optional) {
+							continue;
+						}
 						break;
 					}
 				}
 
 
 
-				// check is it radio element
+				// children elements dependent on parent selection - check is it radio/checkbox element
 				console.log("Object.keys(model[sequence - 1].children).length: " + Object.keys(model[sequence - 1].children).length);
 				if ((model[sequence - 1].elementType == "radio" || model[sequence - 1].elementType == "checkbox") && Object.keys(model[sequence - 1].children).length > 0) {
 
@@ -293,14 +299,14 @@
 
 					}
 				}
-
-
 			} catch (error) {
 				console.error("Error in handleAction(...)")
 				console.error(error);
 				// expected output: ReferenceError: nonExistentFunction is not defined
 				// Note - error messages will vary depending on browser
 			}
+
+			// output data selected into comments or subject
 		}
 
 
