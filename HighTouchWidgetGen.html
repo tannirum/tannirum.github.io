@@ -233,6 +233,8 @@
 				// console.log("Object.keys(model).length: " + Object.keys(model).length)
 
 				if (sequence == Object.keys(model).length) {
+					// refresh the subject and comments fields with all the current data in «globals.outputData»
+					updateOutput();
 					return;
 				}
 				/* Show next element in the sequence until next elements has no dependency parent and 
